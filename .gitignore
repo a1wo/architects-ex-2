@@ -2,3 +2,8 @@ corpus/
 __pycache__/
 *.pyc
 .env
+.venv/
+corpus/
+results/
+__pycache__/
+.env
