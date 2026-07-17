@@ -31,6 +31,7 @@ import os
 import re
 import statistics
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -75,7 +76,7 @@ def parse_json_reply(text):
 
 
 def judge(prompt):
-    for attempt in range(3):
+    for attempt in range(5):
         try:
             reply = chat([{"role": "user", "content": prompt}], model=JUDGE_MODEL,
                          temperature=0.0, max_tokens=300, quiet=True)
@@ -83,8 +84,9 @@ def judge(prompt):
             if parsed:
                 return parsed
         except Exception as e:
-            if attempt == 2:
+            if attempt == 4:
                 return {"error": str(e)}
+            time.sleep(2 ** attempt * 2)  # 2s..16s backoff; TF drops connections under load
     return {"error": "unparseable judge reply"}
 
 
