@@ -45,7 +45,7 @@ from tf_client import chat
 
 CONFIG = json.load(open(REPO_ROOT / "ours" / "config.json", encoding="utf-8"))
 JUDGE_MODEL = os.environ.get("JUDGE_MODEL", CONFIG["judge_model"])  # pinned; do not bump mid-exercise
-JUDGE_WORKERS = 4
+JUDGE_WORKERS = 12
 PAGE_CHARS = 6000  # max chars of cited page text shown to the judge
 
 RELEVANCE_PROMPT = """You are grading a customer-support answer about Harel Insurance policies.
