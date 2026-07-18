@@ -18,9 +18,11 @@ Almost always confidently: 56% of default answers are confident contradictions o
 
 An earlier run of the same variant (preserved at commit `2562109`; results were later regenerated) showed the same bias more sharply: base_default answered "depends on your rider — covered under כתב שירות DRIVE, not under כתב שירות כבישים" — a reasonable conditional whose DRIVE branch matches the ground truth — and was also scored incorrect + confident. Implication at scale: an LLM judge anchors on ground-truth phrasing and punishes legitimate conditional or can't-verify answers, so (a) judged deltas are trustworthy only when large, (b) borderline verdicts need human spot-checks, (c) the judge model + prompts must stay pinned so the bias is at least constant. Reproduce either case: `python ours/show_case.py dev-13-car-easy base_cite` and `python ours/show_case.py dev-13-car-easy base_default --rev 2562109`.
 
+
+
 ---
 
-# Part A — Stage-1 evaluation harness 
+# Stage-1 evaluation harness 
 ```python
 def judge(prompt):
     for attempt in range(5):
@@ -109,3 +111,31 @@ Aggregate: `C = (full + 0.5·partial) / judged` (≤3 citations judged per answe
 
 The runner wraps the full model call: `latency_ms = (time.time() - t0) * 1000` — includes network and queueing, i.e., what a customer feels. Harness aggregates mean / p50 / p95 (max when n<20).
 
+## Comparing models
+We reran the same bare evaluation (default prompt, no documents, same pinned judge) across seven more open-weights models on the shared endpoint:
+
+| model | correct | halluc. | refusal | p50 |
+|---|---|---|---|---|
+| openai/gpt-oss-120b | **40%** | 60% | 0% | 5.9s |
+| moonshotai/Kimi-K2.6 | 38% | **31%** | 19% | 26.6s |
+| zai-org/GLM-5.2 | 33% | 44% | 17% | 61.6s |
+| Qwen/Qwen3.5-397B-A17B | 31% | 44% | 4% | 48.5s |
+| deepseek-ai/DeepSeek-V4-Pro (the §1–§3 baseline) | 31% | 56% | 6% | 26.7s |
+| nvidia/Nemotron-3-Ultra-550b-a55b | 31% | 35% | 23% | **3.5s** |
+| Qwen/Qwen3-32B | 10% | 75% | 0% | 24.2s |
+| meta-llama/Llama-3.3-70B-Instruct | 8% | 42% | 19% | 39.4s |
+
+Four results matter. **(a) No model breaks 40% correct without the documents** — eight families spanning 32B–550B land in the same band, so model choice does not substitute for retrieval; the conclusion of §1 is family-independent. **(b) Models differ far more in honesty than in knowledge**: gpt-oss-120b and Qwen3-32B refuse *nothing* (every miss is a confident hallucination), while Kimi and Nemotron refuse ~20% and cut the hallucination rate roughly in half at the same accuracy. Because a confident wrong answer is the worst outcome for an insurer (§2), we changed the relevance score to `correct + 0.5·partial + 0.1·refusal − 0.25·hallucination` — under it the composite ranking flips to Nemotron (35.1) > Kimi (34.2) > gpt-oss (33.5). **(c) The strict/cite dials from §2 are also model-independent** — strict collapses every model to 75–100% refusal; cite splits by scale: flagships refuse nearly everything (98–100%), while smaller models keep answering with fabricated citations (Qwen3-32B: 81% hallucination under cite). **(d) One anomaly**: Nemotron emitted raw `<tool_call>` JSON for nonexistent search tools on 6/48 questions — it *assumes* a retrieval loop even bare, and Qwen3-32B leaked `<think>` traces and garbled bytes, which the conversational judge punished (Q=0.22).
+
+**Decision:** `test_model` (the Stage-2 RAG generator) = **moonshotai/Kimi-K2.6** — near-best accuracy with the best calibration; a generator that already prefers "I don't know" over invention is the right substrate for grounding. Full ranked tables, per-run folders, and per-question CSVs: `ours/results/STAGE1.md`, `ours/results/STAGE23.md`, `ours/results/<run>/`.
+## Comparing policies
+
+Three prompt policies so far (exact texts in each run's `config.json`): **default** — answer in the question's language, cite if you cite; **strict** — answer only if certain, otherwise refuse verbatim; **cite** — every factual claim must cite (document, page), else say you cannot verify. Effect on the two lead models:
+
+| policy | Kimi-K2.6 correct | halluc. | refusal | gpt-oss-120b correct | halluc. | refusal |
+|---|---|---|---|---|---|---|
+| default | **38%** | 31% | 19% | **40%** | 60% | 0% |
+| strict | 0% | 2% | 98% | 0% | 0% | 100% (0.6s p50) |
+| cite | 0% | 0% | 100% | 0% | 0% | 100% (0.6s p50) |
+
+Both collapse to total refusal under strict *and* cite — there is no middle setting. gpt-oss's collapse is instant (p50 drops to 0.6s: it pattern-matches the policy and emits a refusal template without deliberating). The instructive contrast is **where the honesty comes from**: gpt-oss's calibration is 100% policy-controlled (0% refusal without the policy, 100% with), while Kimi refuses 19% *unprompted* — its default behavior already includes self-assessment, which is why it keeps 38% correct with half of gpt-oss's hallucination rate. Prompt policies are a binary kill-switch on these models; useful calibration has to either come from the model (Kimi) or from retrieval (Stage 2).
