@@ -59,6 +59,24 @@ Reply with ONLY a JSON object, no prose, no code fences:
 
 "confident" = does the system's answer assert its claims without hedging? (a refusal is never confident)"""
 
+CONVERSATIONAL_PROMPT = """You are rating the conversational quality of a customer-support reply from an insurance company, NOT its factual correctness.
+
+Customer question (Hebrew): {question}
+
+Support reply: {answer}
+
+Rate ONLY clarity, tone, and flow on a 1-5 scale:
+5 = clear, warm, well-structured, right length, same language as the question, directly addresses the customer
+4 = good but minor issues (slightly too long/short, small structure problems)
+3 = understandable but flawed (wall of text, robotic tone, poor structure, hedging clutter)
+2 = hard to follow, wrong register, ignores the customer's framing, or partially wrong language
+1 = confusing, rude, wrong language entirely, or doesn't engage with the question
+
+A polite, clear refusal can still score 4-5. A correct but unreadable answer scores low.
+
+Reply with ONLY a JSON object, no prose, no code fences:
+{{"score": 1 | 2 | 3 | 4 | 5, "reason": "<one short sentence>"}}"""
+
 CITATION_PROMPT = """You are checking a citation in an insurance support answer.
 
 Ground-truth answer to the customer's question: {ground_truth}
@@ -147,6 +165,8 @@ def score_one(q, ans, corpus):
                                           file=file, page=page, page_text=text))
         cite_verdicts.append({"file": file, "page": page, **cv})
     v["citations"] = cite_verdicts
+    v["conversational"] = judge(CONVERSATIONAL_PROMPT.format(question=q["question"],
+                                                             answer=ans.get("answer", "")))
     v["latency_ms"] = ans.get("latency_ms")
     v["tokens"] = ans.get("tokens")
     return v
@@ -177,6 +197,10 @@ def aggregate(verdicts):
             "none": sum(1 for c in all_cites if c.get("support") == "none"),
             "invalid": sum(1 for c in all_cites if c.get("support") == "invalid"),
         },
+        "conversational": (lambda s: {"mean_1to5": statistics.mean(s) if s else None,
+                                      "Q": (statistics.mean(s) - 1) / 4 if s else None})(
+            [v["conversational"]["score"] for v in verdicts
+             if isinstance(v.get("conversational", {}).get("score"), (int, float))]),
         "latency_ms": {
             "mean": statistics.mean(lat) if lat else None,
             "p50": statistics.median(lat) if lat else None,
@@ -206,6 +230,7 @@ def print_table(m):
 | **hallucination rate** (confident + wrong) | **{m['hallucination_rate']:.0%}** |
 | answers with citations | {c['answers_with_citations']:.0%} |
 | citations judged full / partial / none / invalid | {c['full']} / {c['partial']} / {c['none']} / {c['invalid']} (of {c['judged']}) |
+| conversational (judged, 1-5 mean → Q) | {m['conversational']['mean_1to5'] and f"{m['conversational']['mean_1to5']:.2f} → Q={m['conversational']['Q']:.2f}"} |
 | latency mean / p50 / p95 (ms) | {l['mean']:.0f} / {l['p50']:.0f} / {l['p95']:.0f} |
 | judge model | {m['judge_model']} |""")
     print("\nCorrect by domain: " + ", ".join(f"{d} {v:.0%}" for d, v in m["correct_by_domain"].items()))

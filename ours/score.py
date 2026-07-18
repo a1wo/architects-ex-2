@@ -47,13 +47,14 @@ def main():
     lat_score = clamp01(1 - (lat["p50"] / 1000 - 2) / 18)
     cost_score = clamp01(1 - (cost_q - 0.001) / 0.009) if cost_q is not None else 0.5
     E = 0.5 * lat_score + 0.5 * cost_score
-    Q = args.q
+    q_judged = m.get("conversational", {}).get("Q")
+    Q, q_src = (q_judged, "judged") if q_judged is not None else (args.q, "ASSUMED via --q")
 
     total = 65 * R + 15 * C + 10 * E + 10 * Q
     print(f"R relevance     {R:.3f}  -> {65*R:5.1f} / 65")
     print(f"C citations     {C:.3f}  -> {15*C:5.1f} / 15")
     print(f"E efficiency    {E:.3f}  -> {10*E:5.1f} / 10   (p50 {lat['p50']:.0f} ms, ${cost_q if cost_q is not None else float('nan'):.5f}/q)")
-    print(f"Q conversational{Q:7.3f}  -> {10*Q:5.1f} / 10   (ASSUMED via --q, not judged yet)")
+    print(f"Q conversational{Q:7.3f}  -> {10*Q:5.1f} / 10   ({q_src})")
     print(f"TOTAL           {total:5.1f} / 100")
 
 
