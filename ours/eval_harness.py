@@ -195,7 +195,6 @@ def aggregate(verdicts):
 
 def print_table(m):
     r, c, l = m["relevance"], m["citations"], m["latency_ms"]
-    cite_denom = max(c["judged"], 1)
     print(f"""
 | metric | value |
 |---|---|
@@ -206,7 +205,7 @@ def print_table(m):
 | refusals | {r['refusal']:.0%} |
 | **hallucination rate** (confident + wrong) | **{m['hallucination_rate']:.0%}** |
 | answers with citations | {c['answers_with_citations']:.0%} |
-| citations judged full / partial / none / invalid | {c['full']} / {c['partial']} / {c['none']} / {c['invalid']} (of {cite_denom}) |
+| citations judged full / partial / none / invalid | {c['full']} / {c['partial']} / {c['none']} / {c['invalid']} (of {c['judged']}) |
 | latency mean / p50 / p95 (ms) | {l['mean']:.0f} / {l['p50']:.0f} / {l['p95']:.0f} |
 | judge model | {m['judge_model']} |""")
     print("\nCorrect by domain: " + ", ".join(f"{d} {v:.0%}" for d, v in m["correct_by_domain"].items()))
