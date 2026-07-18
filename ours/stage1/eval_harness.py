@@ -65,15 +65,17 @@ Reply with ONLY a JSON object, no prose, no code fences:
 
 CITATION_PROMPT = """You are checking a citation in an insurance support answer.
 
-Ground-truth answer to the customer's question: {ground_truth}
+The system's answer to the customer: {answer}
 
-The system cited {file} page {page}. Text of that page:
+To support it, the system cited {file} page {page}. Text of that page:
 ---
 {page_text}
 ---
 
-Does this page establish the ground-truth answer? Reply with ONLY a JSON object, no prose, no code fences:
-{{"support": "full" | "partial" | "none", "reason": "<one short sentence>"}}"""
+Does this page actually support the factual claims of the system's answer? Judge ONLY answer-vs-page grounding; you have no other source of truth.
+{{"support": "full" | "partial" | "none", "reason": "<one short sentence>"}}
+Reply with ONLY that JSON object, no prose, no code fences.
+"full" = every factual claim tied to this citation appears in the page; "partial" = some do; "none" = the page does not back what the answer says."""
 
 
 def parse_json_reply(text):
@@ -147,7 +149,7 @@ def score_one(q, ans, corpus):
         if text is None or not text.strip():
             cite_verdicts.append({"file": file, "page": page, "support": "invalid"})
             continue
-        cv = judge(CITATION_PROMPT.format(ground_truth=q["ground_truth_answer"],
+        cv = judge(CITATION_PROMPT.format(answer=ans.get("answer", ""),
                                           file=file, page=page, page_text=text))
         cite_verdicts.append({"file": file, "page": page, **cv})
     v["citations"] = cite_verdicts

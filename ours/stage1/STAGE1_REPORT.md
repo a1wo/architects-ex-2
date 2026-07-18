@@ -117,19 +117,21 @@ def resolve(self, file, page):
     return (reader.pages[page - 1].extract_text() or "")[:PAGE_CHARS]
 ```
 
-**Step 2 — judge** the resolved page text against the **ground truth** (not the system's answer — per the exercise; no fixed source list, any establishing page earns credit; `ground_truth_sources` is debug-only). Exact prompt:
+**Step 2 — judge** the resolved page text against **the system's own answer** — groundedness, not ground-truth matching. This is a deliberate design decision: the citation check never sees the ground truth. It asks one question — *does the page the system cited actually back what the system said?* — which (a) measures the honesty of the citation itself, (b) works identically on the blind set where we have no ground truths, and (c) is the same check the production system can run on itself before answering (verify-then-respond). Correctness against ground truth is already fully covered by the relevance metric; keeping the two orthogonal means a wrong-but-honestly-cited answer loses relevance points, not citation points, and a right-but-badly-cited answer loses citation points, not relevance points. (No fixed source list either way — any corpus page that genuinely supports the answer earns credit; `ground_truth_sources` is debug-only. Note the official harness wording judges citations against the ground-truth answer; on answers that are correct — the ones earning citation points in practice — the two definitions coincide.) Exact prompt:
 
 ```text
 You are checking a citation in an insurance support answer.
 
-Ground-truth answer to the customer's question: {ground_truth}
-The system cited {file} page {page}. Text of that page:
+The system's answer to the customer: {answer}
+To support it, the system cited {file} page {page}. Text of that page:
 ---
 {page_text}
 ---
-Does this page establish the ground-truth answer? Reply with ONLY a JSON object,
-no prose, no code fences:
+Does this page actually support the factual claims of the system's answer?
+Judge ONLY answer-vs-page grounding; you have no other source of truth.
 {"support": "full" | "partial" | "none", "reason": "<one short sentence>"}
+"full" = every factual claim tied to this citation appears in the page;
+"partial" = some do; "none" = the page does not back what the answer says.
 ```
 
 Aggregate: `C = (full + 0.5·partial) / judged` (≤3 citations judged per answer, cost bound). **End-to-end verification** ([`../selftest_citations.py`](../selftest_citations.py)): answers citing the known ground-truth pages → 3/3 `full`; a bogus `does-not-exist.pdf` p.99 → `invalid`. All 58 dev ground-truth sources resolve to readable Hebrew text.
