@@ -1,0 +1,7 @@
+{
+  "_comment": "Single source of truth for model choices. baseline_model = the strongest open-weights model, used ONLY for the Stage-1 bare baseline we must beat. test_model = the generator our actual system runs on (smaller/cheaper on purpose: a model that reads the right page should beat a bigger one that remembers the internet). judge_model = pinned forever for score comparability across runs — do NOT bump it mid-exercise.",
+  "baseline_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "test_model": "Qwen/Qwen3-32B",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0
+}

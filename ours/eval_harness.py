@@ -35,9 +35,12 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))  # tf_client.py lives in the given starter kit at repo root
 from tf_client import chat
 
-JUDGE_MODEL = os.environ.get("JUDGE_MODEL", "deepseek-ai/DeepSeek-V4-Pro")  # pinned; do not bump mid-exercise
+CONFIG = json.load(open(Path(__file__).with_name("config.json"), encoding="utf-8"))
+JUDGE_MODEL = os.environ.get("JUDGE_MODEL", CONFIG["judge_model"])  # pinned; do not bump mid-exercise
 JUDGE_WORKERS = 4
 PAGE_CHARS = 6000  # max chars of cited page text shown to the judge
 

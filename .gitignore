@@ -1,9 +1,6 @@
 corpus/
+.venv/
+ours/results/
 __pycache__/
 *.pyc
-.env
-.venv/
-corpus/
-results/
-__pycache__/
 .env
