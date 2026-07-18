@@ -1,6 +1,13 @@
 """
-Stage 1 evaluation harness. Scores an answers JSONL (from baseline_runner.py /
-submit_runner.py) against the dev set's ground truths and reports:
+Evaluation harness, two layers:
+
+  DEFAULT (Stage 1 spec) — exactly the four required metrics: relevance,
+  hallucination rate, citation accuracy, latency.
+  --full (Stage 2/3 evaluation) — adds judged conversational quality, feeding
+  the competition-proxy composite in score.py (65R+15C+10E+10Q).
+
+Scores an answers JSONL (from baseline_runner.py / submit_runner.py / our RAG)
+against the dev set's ground truths and reports:
 
   * relevance          -- LLM-as-judge: does the answer agree with the ground
                           truth on the asked fact? (correct / partial / wrong)
@@ -145,7 +152,7 @@ class Corpus:
             return None
 
 
-def score_one(q, ans, corpus):
+def score_one(q, ans, corpus, conv=False):
     v = {"id": q["id"], "domain": q.get("domain"), "difficulty": q.get("difficulty")}
 
     rel = judge(RELEVANCE_PROMPT.format(question=q["question"],
@@ -165,8 +172,9 @@ def score_one(q, ans, corpus):
                                           file=file, page=page, page_text=text))
         cite_verdicts.append({"file": file, "page": page, **cv})
     v["citations"] = cite_verdicts
-    v["conversational"] = judge(CONVERSATIONAL_PROMPT.format(question=q["question"],
-                                                             answer=ans.get("answer", "")))
+    if conv:  # Stage-2/3 evaluation extra; not part of the Stage-1 required four
+        v["conversational"] = judge(CONVERSATIONAL_PROMPT.format(question=q["question"],
+                                                                 answer=ans.get("answer", "")))
     v["latency_ms"] = ans.get("latency_ms")
     v["tokens"] = ans.get("tokens")
     return v
@@ -230,9 +238,10 @@ def print_table(m):
 | **hallucination rate** (confident + wrong) | **{m['hallucination_rate']:.0%}** |
 | answers with citations | {c['answers_with_citations']:.0%} |
 | citations judged full / partial / none / invalid | {c['full']} / {c['partial']} / {c['none']} / {c['invalid']} (of {c['judged']}) |
-| conversational (judged, 1-5 mean → Q) | {m['conversational']['mean_1to5'] and f"{m['conversational']['mean_1to5']:.2f} → Q={m['conversational']['Q']:.2f}"} |
 | latency mean / p50 / p95 (ms) | {l['mean']:.0f} / {l['p50']:.0f} / {l['p95']:.0f} |
 | judge model | {m['judge_model']} |""")
+    if m["conversational"]["Q"] is not None:
+        print(f"| conversational (Stage-2/3 extra, 1-5 mean → Q) | {m['conversational']['mean_1to5']:.2f} → Q={m['conversational']['Q']:.2f} |")
     print("\nCorrect by domain: " + ", ".join(f"{d} {v:.0%}" for d, v in m["correct_by_domain"].items()))
 
 
@@ -242,6 +251,10 @@ def main():
     ap.add_argument("--questions", default="reference_questions.json")
     ap.add_argument("--corpus", default="corpus")
     ap.add_argument("--out", default=None, help="prefix for _verdicts.jsonl / _metrics.json")
+    ap.add_argument("--full", action="store_true",
+                    help="Stage-2/3 evaluation: also judge conversational quality. "
+                         "Default (off) = the Stage-1 required four: relevance, "
+                         "hallucination, citations, latency.")
     args = ap.parse_args()
 
     questions = json.load(open(args.questions, encoding="utf-8"))
@@ -255,7 +268,8 @@ def main():
     corpus = Corpus(args.corpus)
 
     with ThreadPoolExecutor(max_workers=JUDGE_WORKERS) as pool:
-        verdicts = list(pool.map(lambda a: score_one(qby[a["id"]], a, corpus), answers))
+        verdicts = list(pool.map(lambda a: score_one(qby[a["id"]], a, corpus, conv=args.full),
+                                 answers))
 
     out = args.out or Path(args.answers).stem
     with open(f"{out}_verdicts.jsonl", "w", encoding="utf-8") as f:

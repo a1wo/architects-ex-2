@@ -4,18 +4,25 @@
 
 **Setup.** 48 Hebrew dev questions (`reference_questions.json`) through bare `deepseek-ai/DeepSeek-V4-Pro` (strongest open-weights on Nebius Token Factory) — no documents. Three system prompts: **default** (provided), **strict** ("answer only if certain, else refuse"), **cite** ("every claim must cite document + page"). Model roles are configured in [`../config.json`](../config.json): `baseline_model` (bar to beat) / `test_model` (our future generator) / `judge_model` (pinned).
 
-## Results
+## Results — the Stage-1 required metrics
 
 | metric | default | strict | cite | test model (Qwen3-32B) |
 |---|---|---|---|---|
-| correct | **35%** | 13% | 31% | 17% |
-| partial | 2% | 0% | 6% | 2% |
-| incorrect | 58% | 10% | 42% | 27% |
+| relevance: correct | **35%** | 13% | 31% | 17% |
+| relevance: partial | 2% | 0% | 6% | 2% |
+| relevance: incorrect | 58% | 10% | 42% | 27% |
 | refusals | 4% | **77%** | 21% | 54% |
 | **hallucination rate** | **56%** | **8%** | **42%** | 25% |
 | citation accuracy | 0 (no citations) | 0 (no citations) | 0 (all invented) | 0 |
-| conversational Q (judged, 0–1) | 0.98 | 0.41 | 0.84 | 0.23 |
 | latency mean / p95 (ms) | 9292 / 27148 | 2289 / 6362 | 7082 / 17074 | 25631 / 51041 |
+
+**Stage-2/3 evaluation extras** (competition proxy — the final grade adds conversational quality
+and efficiency, so we track them from day one, clearly separated from the Stage-1 spec):
+
+| extra | default | strict | cite | Qwen3-32B |
+|---|---|---|---|---|
+| conversational Q (judged, 0–1) | 0.98 | 0.41 | 0.84 | 0.23 |
+| efficiency E (latency+cost bands) | 0.88 | 1.00 | 0.90 | 0.46 |
 | **est. competition score /100** | **42.3** | 22.2 | 39.8 | 17.8 |
 
 Correct by difficulty (default): easy 8/16, medium 4/16, hard 5/16. By domain: business/life 67%, health 50%, **travel 0%**, car/mortgage 17%. Full run ledger: [`../RUNS.md`](../RUNS.md).
@@ -36,9 +43,14 @@ Almost always confidently: 56% of default answers are confident contradictions o
 
 ---
 
-# How every metric is measured
+# Part A — Stage-1 evaluation harness (the required four metrics)
 
-All measurement is in [`../eval_harness.py`](../eval_harness.py); composite scoring in [`../score.py`](../score.py). The judge is `deepseek-ai/DeepSeek-V4-Pro`, `temperature=0.0`, forced JSON, 5 retries with exponential backoff; every verdict carries a one-sentence `reason` and is saved per-question in `<run>_verdicts.jsonl` — nothing is silently dropped.
+`python ours/eval_harness.py <answers.jsonl>` measures exactly what the Stage-1 spec demands:
+**relevance, hallucination rate, citation accuracy, latency.** The judge is
+`deepseek-ai/DeepSeek-V4-Pro`, `temperature=0.0`, forced JSON, 5 retries with exponential
+backoff; every verdict carries a one-sentence `reason` and is saved per-question in
+`<run>_verdicts.jsonl` — nothing is silently dropped. Inspect any number:
+`python ours/show_examples.py <run> <metric>`.
 
 ```python
 def judge(prompt):
@@ -126,9 +138,16 @@ Aggregate: `C = (full + 0.5·partial) / judged` (≤3 citations judged per answe
 
 The runner wraps the full model call: `latency_ms = (time.time() - t0) * 1000` — includes network and queueing, i.e., what a customer feels. Harness aggregates mean / p50 / p95 (max when n<20).
 
+# Part B — Stage-2/3 evaluation (competition proxy, beyond the Stage-1 spec)
+
+The final grade adds conversational quality (10%) and efficiency (10%) on top of the
+Stage-1 four. We evaluate Stages 2–3 with `eval_harness.py --full` (adds the
+conversational judge) + `score.py` (composite). Kept separate so the Stage-1 deliverable
+is exactly what was asked, while our development loop optimizes what will actually be graded.
+
 ## 5. Conversational quality — judged 1–5, correctness excluded
 
-Mirrors the final rubric's 10%. Exact prompt:
+`--full` only. Exact prompt:
 
 ```text
 You are rating the conversational quality of a customer-support reply from an
