@@ -6,7 +6,7 @@ starter kit, untouched (`baseline_runner.py`, `tf_client.py`, `contract.py`,
 
 ## What's going on (status)
 
-- **Stage 1 (baseline + eval harness) — DONE**, see `stage1/BASELINE_REPORT.md`.
+- **Stage 1 (baseline + eval harness) — DONE**, see `stage1/STAGE1_REPORT.md`.
   Best bare-model score ≈ **42/100** on our proxy scoring. Bare models know
   Israeli insurance *law* but not *Harel* (travel: 0% correct), hallucinate
   confidently (56%), and cite nothing real.
@@ -52,7 +52,7 @@ Scoring an answers file you produced some other way (e.g. the future RAG system)
 | `experiments.jsonl` | Append-only ledger, one JSON per run (the full memory of what we tried and why) |
 | `selftest_citations.py` | Proves citation scoring works (real ground-truth pages → `full`, bogus file → `invalid`). Run after touching the harness |
 | `run_bare.sh` | Bare-model run + score + log, `baseline` or `test` role |
-|  `stage1/BASELINE_REPORT.md` | Stage-1 deliverable (metrics + the 3 required analysis answers) |
+|   `stage1/STAGE1_REPORT.md` | Stage-1 deliverable (metrics + the 3 required analysis answers) |
 | `results/` | Raw answers, per-question judge verdicts, metrics JSONs — committed (only `.log` ignored) |
 
 ## Rules we follow
