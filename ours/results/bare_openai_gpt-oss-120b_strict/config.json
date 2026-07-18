@@ -1,0 +1,12 @@
+{
+  "run": "bare_openai_gpt-oss-120b_strict",
+  "answering_model": "openai/gpt-oss-120b",
+  "system_prompt_name": "strict",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer in the language of the question. Answer ONLY if you are certain the answer is correct for Harel's actual policies; otherwise reply exactly: אין לי מספיק מידע כדי לענות על כך בוודאות. Never guess.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "endpoint": "https://api.tokenfactory.nebius.com/v1",
+  "workers": 12,
+  "ts": "2026-07-18T14:33:02"
+}

@@ -35,7 +35,7 @@ def ask(model, kwargs, system_prompt, q):
                 {"role": "user", "content": q["question"]}],
                 timeout=120, **kwargs)
             return {"id": q["id"],
-                    "answer": resp.choices[0].message.content,
+                    "answer": resp.choices[0].message.content or "",  # some models return null content (empty refusal)
                     "citations": [],  # bare model has no documents -- that's the point
                     "latency_ms": (time.time() - t0) * 1000,
                     "tokens": {"prompt": resp.usage.prompt_tokens,

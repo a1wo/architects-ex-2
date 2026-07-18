@@ -1,5 +1,28 @@
-﻿run,model,prompt,correct,partial,incorrect,refusal,halluc,p50_s,date,why
-citation_selftest,none (synthetic: answers are the ground truth — harness self-test),—,1.0,0.0,0.0,0.0,0.0,1.0,—,—
-base_default,deepseek-ai/DeepSeek-V4-Pro,default,0.3125,0.041666666666666664,0.5833333333333334,0.0625,0.5833333333333334,26.728090405464172,2026-07-18,"Stage-1 bar: strongest open-weights model, bare, provided prompt"
-base_cite,deepseek-ai/DeepSeek-V4-Pro,cite,0.25,0.10416666666666667,0.5625,0.08333333333333333,0.5625,22.48770308494568,2026-07-18,prompt strategy 2: always-cite (it fabricates)
-base_strict,deepseek-ai/DeepSeek-V4-Pro,strict,0.125,0.0625,0.041666666666666664,0.7708333333333334,0.041666666666666664,16.42828094959259,2026-07-18,prompt strategy 1: refuse-if-unsure
+﻿run,model,prompt,correct,partial,incorrect,refusal,halluc,p50_s,scored_by,date,why
+bare_openai_gpt-oss-120b,openai/gpt-oss-120b,default,0.3958333333333333,0.0,0.6041666666666666,0.0,0.6041666666666666,5.891856551170349,stage23,2026-07-18,OpenAI open-weights: different training data mix
+bare_moonshotai_Kimi-K2.6,moonshotai/Kimi-K2.6,default,0.375,0.0625,0.375,0.1875,0.3125,26.589030504226685,stage23,2026-07-18,"Kimi flagship: strong agentic model, bare"
+bare_zai-org_GLM-5.2,zai-org/GLM-5.2,default,0.3333333333333333,0.020833333333333332,0.4791666666666667,0.16666666666666666,0.4375,61.59281349182129,stage23,2026-07-18,GLM flagship: already used for cited-runner probe
+bare_Qwen_Qwen3.5-397B-A17B,Qwen/Qwen3.5-397B-A17B,default,0.3125,0.08333333333333333,0.5625,0.041666666666666664,0.4375,48.498778343200684,stage23,2026-07-18,largest Qwen: does scale close the no-docs gap?
+bare_deepseek-ai_DeepSeek-V4-Pro,deepseek-ai/DeepSeek-V4-Pro,default,0.3125,0.0625,0.5625,0.0625,0.5625,26.728090405464172,stage23,2026-07-18,stage23 rescore of base_default answers: judged Q for fair comparison with candidates
+bare_nvidia_Nemotron-3-Ultra-550b-a55b,nvidia/Nemotron-3-Ultra-550b-a55b,default,0.3125,0.0625,0.3958333333333333,0.22916666666666666,0.3541666666666667,3.4637304544448853,stage23,2026-07-18,Nemotron flagship bare: does NVIDIA's biggest model know Israeli insurance?
+base_default,deepseek-ai/DeepSeek-V4-Pro,default,0.3125,0.041666666666666664,0.5833333333333334,0.0625,0.5833333333333334,26.728090405464172,stage1,2026-07-18,"Stage-1 bar: strongest open-weights model, bare, provided prompt"
+bare_deepseek-ai_DeepSeek-V4-Pro_cite,deepseek-ai/DeepSeek-V4-Pro,cite,0.2708333333333333,0.08333333333333333,0.4583333333333333,0.1875,0.4375,11.476477026939392,stage23,—,—
+base_cite,deepseek-ai/DeepSeek-V4-Pro,cite,0.25,0.10416666666666667,0.5625,0.08333333333333333,0.5625,22.48770308494568,stage1,2026-07-18,prompt strategy 2: always-cite (it fabricates)
+bare_meta-llama_Llama-3.3-70B-Instruct_cite,meta-llama/Llama-3.3-70B-Instruct,cite,0.1875,0.041666666666666664,0.3958333333333333,0.375,0.2708333333333333,21.59348213672638,stage23,—,—
+bare_deepseek-ai_DeepSeek-V4-Pro_strict,deepseek-ai/DeepSeek-V4-Pro,strict,0.125,0.041666666666666664,0.0625,0.7708333333333334,0.0625,2.4448516368865967,stage23,—,—
+base_strict,deepseek-ai/DeepSeek-V4-Pro,strict,0.125,0.0625,0.041666666666666664,0.7708333333333334,0.041666666666666664,16.42828094959259,stage1,2026-07-18,prompt strategy 1: refuse-if-unsure
+bare_test_Qwen_Qwen3-32B,Qwen/Qwen3-32B,default,0.10416666666666667,0.0,0.8958333333333334,0.0,0.75,24.164111971855164,stage23,2026-07-18,small test model bare: how big is the gap the RAG must close?
+bare_meta-llama_Llama-3.3-70B-Instruct,meta-llama/Llama-3.3-70B-Instruct,default,0.08333333333333333,0.14583333333333334,0.5833333333333334,0.1875,0.4166666666666667,39.41387438774109,stage23,2026-07-18,smaller western open-weights reference point
+bare_zai-org_GLM-5.2_strict,zai-org/GLM-5.2,strict,0.08333333333333333,0.0,0.041666666666666664,0.875,0.041666666666666664,29.134305477142334,stage23,—,—
+bare_Qwen_Qwen3-32B_cite,Qwen/Qwen3-32B,cite,0.041666666666666664,0.0,0.8333333333333334,0.125,0.8125,24.723019123077393,stage23,—,—
+bare_Qwen_Qwen3-32B_strict,Qwen/Qwen3-32B,strict,0.020833333333333332,0.020833333333333332,0.20833333333333334,0.75,0.14583333333333334,15.307064771652222,stage23,—,—
+bare_Qwen_Qwen3.5-397B-A17B_cite,Qwen/Qwen3.5-397B-A17B,cite,0.020833333333333332,0.0,0.0,0.9791666666666666,0.0,56.18769061565399,stage23,—,—
+bare_nvidia_Nemotron-3-Ultra-550b-a55b_cite,nvidia/Nemotron-3-Ultra-550b-a55b,cite,0.020833333333333332,0.0,0.0,0.9791666666666666,0.0,2.3195319175720215,stage23,—,—
+bare_zai-org_GLM-5.2_cite,zai-org/GLM-5.2,cite,0.020833333333333332,0.0,0.0,0.9791666666666666,0.0,41.022581458091736,stage23,—,—
+bare_Qwen_Qwen3.5-397B-A17B_strict,Qwen/Qwen3.5-397B-A17B,strict,0.0,0.0,0.0,1.0,0.0,29.00459909439087,stage23,—,—
+bare_meta-llama_Llama-3.3-70B-Instruct_strict,meta-llama/Llama-3.3-70B-Instruct,strict,0.0,0.041666666666666664,0.0,0.9583333333333334,0.0,2.0201793909072876,stage23,—,—
+bare_moonshotai_Kimi-K2.6_cite,moonshotai/Kimi-K2.6,cite,0.0,0.0,0.0,1.0,0.0,13.57623016834259,stage23,—,—
+bare_moonshotai_Kimi-K2.6_strict,moonshotai/Kimi-K2.6,strict,0.0,0.0,0.020833333333333332,0.9791666666666666,0.020833333333333332,6.747004985809326,stage23,—,—
+bare_nvidia_Nemotron-3-Ultra-550b-a55b_strict,nvidia/Nemotron-3-Ultra-550b-a55b,strict,0.0,0.0,0.0,1.0,0.0,1.8833374977111816,stage23,—,—
+bare_openai_gpt-oss-120b_cite,openai/gpt-oss-120b,cite,0.0,0.0,0.0,1.0,0.0,0.5963954925537109,stage23,—,—
+bare_openai_gpt-oss-120b_strict,openai/gpt-oss-120b,strict,0.0,0.0,0.0,1.0,0.0,0.6073750257492065,stage23,—,—

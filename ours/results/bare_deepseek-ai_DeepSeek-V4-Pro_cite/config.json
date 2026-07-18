@@ -1,0 +1,12 @@
+{
+  "run": "bare_deepseek-ai_DeepSeek-V4-Pro_cite",
+  "answering_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "system_prompt_name": "cite",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer in the language of the question. Every factual claim MUST cite its source as (document name, page). If you cannot name the exact Harel document and page, state that you cannot verify the answer.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "endpoint": "https://api.tokenfactory.nebius.com/v1",
+  "workers": 12,
+  "ts": "2026-07-18T14:28:27"
+}

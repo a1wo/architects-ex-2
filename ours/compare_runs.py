@@ -33,11 +33,17 @@ _spec.loader.exec_module(score)
 
 DESCRIPTION = {
     "stage1": "Stage-1 evaluation: the four spec metrics (relevance, hallucination, "
-              "citations, latency). No judged conversational quality, no composite score.",
+              "citations, latency). This page shows the stage-1 view of EVERY run: "
+              "stage23-scored runs are included because stage23 embeds the full stage-1 "
+              "evaluation (same pinned judge, same prompts) — see the `scored_by` column. "
+              "No conversational quality, no composite score here.",
     "stage23": "Stage-2/3 evaluation: same four metrics from the same pinned judge, PLUS "
                "judged conversational quality (Q) and the composite competition proxy "
-               "`65·R + 15·C + 10·E + 10·Q` (see ours/stage23/score.py).",
+               "`65·R + 15·C + 10·E + 10·Q` (see ours/stage23/score.py). Only runs with "
+               "a judged Q appear here.",
 }
+
+EXCLUDED_RUNS = {"citation_selftest"}  # harness self-test, not a model run
 
 
 def load_ledger():
@@ -57,6 +63,8 @@ def load_runs():
     by_harness = {}
     for mfile in sorted(RESULTS.glob("*/metrics.json")):
         run = mfile.parent.name
+        if run in EXCLUDED_RUNS:
+            continue
         m = json.load(open(mfile, encoding="utf-8"))
         harness = m.get("harness")
         if not harness:
@@ -67,7 +75,12 @@ def load_runs():
         cfile = mfile.parent / "config.json"
         if cfile.exists():
             cfg = json.load(open(cfile, encoding="utf-8"))
-        by_harness.setdefault(harness, []).append((run, cfg, m, ledger.get(run, {})))
+        entry = (run, cfg, m, ledger.get(run, {}))
+        # every run has the four stage-1 metrics (stage23 embeds stage1) ...
+        by_harness.setdefault("stage1", []).append(entry)
+        # ... but only stage23-scored runs have judged Q + composite
+        if harness == "stage23":
+            by_harness.setdefault("stage23", []).append(entry)
     return by_harness
 
 
@@ -83,6 +96,7 @@ def base_row(run, cfg, m, led):
         "refusal": rel.get("refusal"),
         "halluc": m.get("hallucination_rate"),
         "p50_s": (m.get("latency_ms", {}).get("p50") or 0) / 1000,
+        "scored_by": m.get("harness", "?"),
         "date": (led.get("ts") or "")[:10] or "—",
         "why": led.get("why", "—"),
     }
@@ -90,6 +104,7 @@ def base_row(run, cfg, m, led):
 
 def stage23_row(run, cfg, m, led):
     row = base_row(run, cfg, m, led)
+    row.pop("scored_by")  # everything on the stage23 page is stage23-scored
     s = score.compute(RESULTS / run / "metrics.json")
     row.update({"Q": s["Q"], "E": s["E"],
                 "cost_per_q": s["cost_per_q_usd"], "total": s["total"]})
