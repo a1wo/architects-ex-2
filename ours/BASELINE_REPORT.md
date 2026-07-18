@@ -4,12 +4,13 @@
 
 | metric | default | strict | cite |
 |---|---|---|---|
-| correct | **35%** | 12% | 33% |
+| correct | **35%** | 13% | 31% |
 | partial | 2% | 0% | 6% |
-| incorrect | 58% | 10% | 40% |
+| incorrect | 58% | 10% | 42% |
 | refusals | 4% | **77%** | 21% |
-| **hallucination rate** | **56%** | **8%** | **40%** |
+| **hallucination rate** | **56%** | **8%** | **42%** |
 | citation accuracy | 0 (no citations) | 0 (no citations) | 0 (all invented) |
+| conversational quality (judged 0-1) | 0.98 | 0.41 | 0.84 |
 | latency mean / p95 (ms) | 9292 / 27148 | 2289 / 6362 | 7082 / 17074 |
 
 Correct by difficulty (default): easy 8/16, medium 4/16, hard 5/16. By domain: business/life 67%, health 50%, **travel 0%**, car/mortgage 17%.
