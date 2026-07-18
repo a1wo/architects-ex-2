@@ -1,0 +1,5 @@
+﻿run,model,prompt,correct,partial,incorrect,refusal,halluc,p50_s,date,why
+citation_selftest,none (synthetic: answers are the ground truth — harness self-test),—,1.0,0.0,0.0,0.0,0.0,1.0,—,—
+base_default,deepseek-ai/DeepSeek-V4-Pro,default,0.3125,0.041666666666666664,0.5833333333333334,0.0625,0.5833333333333334,26.728090405464172,2026-07-18,"Stage-1 bar: strongest open-weights model, bare, provided prompt"
+base_cite,deepseek-ai/DeepSeek-V4-Pro,cite,0.25,0.10416666666666667,0.5625,0.08333333333333333,0.5625,22.48770308494568,2026-07-18,prompt strategy 2: always-cite (it fabricates)
+base_strict,deepseek-ai/DeepSeek-V4-Pro,strict,0.125,0.0625,0.041666666666666664,0.7708333333333334,0.041666666666666664,16.42828094959259,2026-07-18,prompt strategy 1: refuse-if-unsure

@@ -3,7 +3,11 @@ Composite competition-score calculator — our proxy of the official rubric:
 
     score = 65*R + 15*C + 10*E + 10*Q          (+5 voice, +5 UI, added manually)
 
-    R relevance    = (correct + 0.5*partial) / questions      [eval_harness judge]
+    R relevance    = correct + 0.5*partial + 0.1*refusal - 0.25*hallucination,
+                     clamped to [0,1].                        [eval_harness judge]
+                     "I don't know" is worth something (an insurer can route it to a
+                     human); a confident wrong answer actively costs points because it
+                     creates reliance and liability. Constants below.
     C citations    = (full + 0.5*partial) / judged, 0 if none  [eval_harness judge]
     E efficiency   = 0.5*latency + 0.5*cost
                      latency: 1.0 at p50<=2s -> 0.0 at 20s (linear)
@@ -19,6 +23,8 @@ import json
 from pathlib import Path
 
 PRICE_IN, PRICE_OUT = 0.5, 2.0  # $/M tokens, same estimate as tf_client.py
+REFUSAL_CREDIT = 0.10        # honest "I don't know" beats a wrong answer
+HALLUCINATION_PENALTY = 0.25  # confident wrong answers actively cost points
 
 
 def clamp01(x):
@@ -30,10 +36,16 @@ def compute(metrics_path, q_assumed=0.70):
     m = json.load(open(metrics_path, encoding="utf-8"))
     r, c, lat = m["relevance"], m["citations"], m["latency_ms"]
 
-    R = r["correct"] + 0.5 * r["partial"]
+    R = clamp01(r["correct"] + 0.5 * r["partial"]
+                + REFUSAL_CREDIT * r.get("refusal", 0)
+                - HALLUCINATION_PENALTY * m.get("hallucination_rate", 0))
     C = (c["full"] + 0.5 * c["partial"]) / c["judged"] if c["judged"] else 0.0
 
-    answers_file = Path(str(metrics_path).replace("_metrics.json", ".jsonl"))
+    mpath = Path(metrics_path)
+    if mpath.name == "metrics.json":   # folder-per-run layout: answers.jsonl alongside
+        answers_file = mpath.parent / "answers.jsonl"
+    else:                              # legacy prefix layout
+        answers_file = Path(str(metrics_path).replace("_metrics.json", ".jsonl"))
     cost_q = None
     if answers_file.exists():
         recs = [json.loads(l) for l in open(answers_file, encoding="utf-8")]

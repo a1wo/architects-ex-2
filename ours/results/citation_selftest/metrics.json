@@ -27,5 +27,6 @@
   "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
   "correct_by_domain": {
     "apartment": 1.0
-  }
+  },
+  "harness": "stage1"
 }

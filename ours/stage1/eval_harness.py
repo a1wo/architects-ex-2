@@ -223,9 +223,12 @@ def print_table(m):
     print("\nCorrect by domain: " + ", ".join(f"{d} {v:.0%}" for d, v in m["correct_by_domain"].items()))
 
 
-def evaluate(answers_path, questions_path, corpus_path, out_prefix, score_fn=score_one):
+def evaluate(answers_path, questions_path, corpus_path, out_prefix, score_fn=score_one,
+             harness="stage1"):
     """Full pipeline: load -> judge every answer with score_fn -> write verdicts +
-    metrics -> print table. stage23/eval_harness.py reuses this with its own score_fn."""
+    metrics -> print table. stage23/eval_harness.py reuses this with its own score_fn
+    and harness="stage23"; the harness name is recorded in metrics.json so runs scored
+    by different evaluations are never compared blindly."""
     questions = json.load(open(questions_path, encoding="utf-8"))
     if isinstance(questions, dict):
         questions = questions["questions"]
@@ -239,15 +242,25 @@ def evaluate(answers_path, questions_path, corpus_path, out_prefix, score_fn=sco
     with ThreadPoolExecutor(max_workers=JUDGE_WORKERS) as pool:
         verdicts = list(pool.map(lambda a: score_fn(qby[a["id"]], a, corpus), answers))
 
-    out = out_prefix or Path(answers_path).stem
-    with open(f"{out}_verdicts.jsonl", "w", encoding="utf-8") as f:
+    if out_prefix:
+        out = Path(out_prefix)
+    elif Path(answers_path).name == "answers.jsonl":
+        out = Path(answers_path).parent          # folder-per-run: write next to answers
+    else:
+        out = Path(Path(answers_path).stem)      # legacy: prefix from the filename
+    if out.is_dir():  # folder-per-run layout: results/<run>/{verdicts.jsonl,metrics.json}
+        vpath, mpath = out / "verdicts.jsonl", out / "metrics.json"
+    else:             # legacy prefix layout: <out>_verdicts.jsonl / <out>_metrics.json
+        vpath, mpath = Path(f"{out}_verdicts.jsonl"), Path(f"{out}_metrics.json")
+    with open(vpath, "w", encoding="utf-8") as f:
         for v in verdicts:
             f.write(json.dumps(v, ensure_ascii=False) + "\n")
     metrics = aggregate(verdicts)
-    json.dump(metrics, open(f"{out}_metrics.json", "w", encoding="utf-8"),
+    metrics["harness"] = harness
+    json.dump(metrics, open(mpath, "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
     print_table(metrics)
-    print(f"\nwrote {out}_verdicts.jsonl, {out}_metrics.json")
+    print(f"\nwrote {vpath}, {mpath}")
     return metrics
 
 
@@ -256,7 +269,10 @@ def make_argparser():
     ap.add_argument("answers")
     ap.add_argument("--questions", default="reference_questions.json")
     ap.add_argument("--corpus", default="corpus")
-    ap.add_argument("--out", default=None, help="prefix for _verdicts.jsonl / _metrics.json")
+    ap.add_argument("--out", default=None,
+                    help="run folder (writes verdicts.jsonl/metrics.json inside) "
+                         "or legacy prefix for _verdicts.jsonl/_metrics.json; "
+                         "default: the answers file's folder")
     return ap
 
 

@@ -1,0 +1,12 @@
+{
+  "run": "bare_meta-llama_Llama-3.3-70B-Instruct",
+  "answering_model": "meta-llama/Llama-3.3-70B-Instruct",
+  "system_prompt_name": "default",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer the customer's question in the language it was asked. If you cite a source, cite the exact document and page.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "endpoint": "https://api.tokenfactory.nebius.com/v1",
+  "workers": 12,
+  "ts": "2026-07-18T12:58:13"
+}

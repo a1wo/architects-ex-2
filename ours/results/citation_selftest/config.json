@@ -1,0 +1,10 @@
+{
+  "run": "citation_selftest",
+  "answering_model": "none (synthetic: answers are the ground truth — harness self-test)",
+  "system_prompt_name": null,
+  "system_prompt": null,
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "note": "config reconstructed during 2026-07-18 migration to folder-per-run layout"
+}

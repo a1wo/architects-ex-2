@@ -1,0 +1,10 @@
+{
+  "run": "bare_deepseek-ai_DeepSeek-V4-Pro",
+  "answering_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "system_prompt_name": "default",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer the customer's question in the language it was asked. If you cite a source, cite the exact document and page.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "note": "answers copied from base_default (same bare DeepSeek run); rescored with stage23 harness for judged conversational Q"
+}

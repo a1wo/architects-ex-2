@@ -9,7 +9,7 @@ can always be traced to real question/answer/verdict triples.
     python ours/show_examples.py base_default conversational     # lowest-rated answers
 
 Metrics: correct | partial | incorrect | refusal | hallucination | citations | conversational
-Run name = any <name> that has ours/results/<name>.jsonl + <name>_verdicts.jsonl.
+Run name = any folder ours/results/<name>/ with answers.jsonl + verdicts.jsonl.
 """
 import argparse
 import json
@@ -21,8 +21,8 @@ RESULTS = ROOT / "ours" / "results"
 
 def load(name):
     qs = {q["id"]: q for q in json.load(open(ROOT / "reference_questions.json", encoding="utf-8"))}
-    ans = {r["id"]: r for r in map(json.loads, open(RESULTS / f"{name}.jsonl", encoding="utf-8"))}
-    ver = {v["id"]: v for v in map(json.loads, open(RESULTS / f"{name}_verdicts.jsonl", encoding="utf-8"))}
+    ans = {r["id"]: r for r in map(json.loads, open(RESULTS / name / "answers.jsonl", encoding="utf-8"))}
+    ver = {v["id"]: v for v in map(json.loads, open(RESULTS / name / "verdicts.jsonl", encoding="utf-8"))}
     return qs, ans, ver
 
 

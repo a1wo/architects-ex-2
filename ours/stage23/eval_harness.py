@@ -55,9 +55,15 @@ def score_one(q, ans, corpus):
 
 if __name__ == "__main__":
     args = stage1.make_argparser().parse_args()
-    stage1.evaluate(args.answers, args.questions, args.corpus, args.out, score_fn=score_one)
-    out = args.out or Path(args.answers).stem
+    stage1.evaluate(args.answers, args.questions, args.corpus, args.out,
+                    score_fn=score_one, harness="stage23")
+    if args.out and Path(args.out).is_dir():          # folder-per-run layout
+        mpath = Path(args.out) / "metrics.json"
+    elif not args.out and Path(args.answers).name == "answers.jsonl":
+        mpath = Path(args.answers).parent / "metrics.json"
+    else:                                             # legacy prefix layout
+        mpath = Path(f"{args.out or Path(args.answers).stem}_metrics.json")
     print("\ncomposite competition score:")
-    s = score.compute(f"{out}_metrics.json")
+    s = score.compute(mpath)
     print(f"  R {s['R']:.3f} | C {s['C']:.3f} | E {s['E']:.3f} | Q {s['Q']:.3f} ({s['q_source']})"
           f"  ->  TOTAL {s['total']:.1f}/100")

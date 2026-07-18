@@ -2,11 +2,11 @@
   "n": 48,
   "relevance": {
     "correct": 0.3125,
-    "partial": 0.041666666666666664,
-    "incorrect": 0.5833333333333334,
-    "refusal": 0.0625
+    "partial": 0.0625,
+    "incorrect": 0.3958333333333333,
+    "refusal": 0.22916666666666666
   },
-  "hallucination_rate": 0.5833333333333334,
+  "hallucination_rate": 0.3541666666666667,
   "citations": {
     "answers_with_citations": 0.0,
     "judged": 0,
@@ -16,23 +16,24 @@
     "invalid": 0
   },
   "conversational": {
-    "mean_1to5": null,
-    "Q": null
+    "mean_1to5": 4.0625,
+    "Q": 0.765625
   },
   "latency_ms": {
-    "mean": 30708.16384255886,
-    "p50": 26728.090405464172,
-    "p95": 68375.88691711426
+    "mean": 4199.348837137222,
+    "p50": 3463.7304544448853,
+    "p95": 11949.778187274933
   },
   "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
   "correct_by_domain": {
-    "apartment": 0.3333333333333333,
-    "business": 0.3333333333333333,
+    "apartment": 0.0,
+    "business": 0.6666666666666666,
     "car": 0.16666666666666666,
     "dental": 0.3333333333333333,
-    "health": 0.6666666666666666,
+    "health": 0.5,
     "life": 0.5,
-    "mortgage": 0.0,
+    "mortgage": 0.16666666666666666,
     "travel": 0.16666666666666666
-  }
+  },
+  "harness": "stage23"
 }

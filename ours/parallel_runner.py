@@ -11,6 +11,7 @@ per-question latency is still the single-call wall time, so latency metrics
 stay comparable with sequential runs.
 """
 import argparse
+import datetime
 import json
 import os
 import time
@@ -52,7 +53,10 @@ def main():
     ap.add_argument("--questions", default="reference_questions.json")
     ap.add_argument("--model", required=True)
     ap.add_argument("--system-prompt", default=DEFAULT_SYSTEM)
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--prompt-name", default=None,
+                    help="label for config.json, e.g. default/strict/cite")
+    ap.add_argument("--out", required=True,
+                    help="answers path; convention: ours/results/<run>/answers.jsonl")
     args = ap.parse_args()
 
     model, kwargs = args.model, {}
@@ -64,6 +68,28 @@ def main():
     questions = json.load(open(args.questions, encoding="utf-8"))
     if isinstance(questions, dict):
         questions = questions["questions"]
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if out_path.name == "answers.jsonl":  # folder-per-run layout: record the run's config
+        prompt_name = args.prompt_name or \
+            ("default" if args.system_prompt == DEFAULT_SYSTEM else "custom")
+        judge_cfg = {}
+        cfg_path = Path(__file__).resolve().parent / "config.json"
+        if cfg_path.exists():
+            judge_cfg = json.load(open(cfg_path, encoding="utf-8"))
+        json.dump({"run": out_path.parent.name,
+                   "answering_model": args.model,
+                   "system_prompt_name": prompt_name,
+                   "system_prompt": args.system_prompt,
+                   "judge_model": judge_cfg.get("judge_model"),
+                   "judge_temperature": judge_cfg.get("judge_temperature"),
+                   "questions": args.questions,
+                   "endpoint": base or "provider default",
+                   "workers": WORKERS,
+                   "ts": datetime.datetime.now().isoformat(timespec="seconds")},
+                  open(out_path.parent / "config.json", "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=2)
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:

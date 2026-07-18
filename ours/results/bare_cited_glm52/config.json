@@ -1,0 +1,10 @@
+{
+  "run": "bare_cited_glm52",
+  "answering_model": "zai-org/GLM-5.2",
+  "system_prompt_name": "default (via bare_cited_runner.py: asked to cite sources)",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer the customer's question in the language it was asked. If you cite a source, cite the exact document and page.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "note": "config reconstructed during 2026-07-18 migration to folder-per-run layout"
+}

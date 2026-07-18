@@ -4,3 +4,4 @@ pydantic>=2
 requests
 litellm
 huggingface_hub
+python-bidi

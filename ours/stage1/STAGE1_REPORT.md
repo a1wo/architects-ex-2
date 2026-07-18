@@ -4,30 +4,6 @@
 
 **Setup.** 48 Hebrew dev questions (`reference_questions.json`) through bare `deepseek-ai/DeepSeek-V4-Pro` (strongest open-weights on Nebius Token Factory) — no documents. Three system prompts: **default** (provided), **strict** ("answer only if certain, else refuse"), **cite** ("every claim must cite document + page"). Model roles are configured in [`../config.json`](../config.json): `baseline_model` (bar to beat) / `test_model` (our future generator) / `judge_model` (pinned).
 
-## Results — the Stage-1 required metrics
-
-| metric | default | strict | cite | test model (Qwen3-32B) |
-|---|---|---|---|---|
-| relevance: correct | **35%** | 13% | 31% | 17% |
-| relevance: partial | 2% | 0% | 6% | 2% |
-| relevance: incorrect | 58% | 10% | 42% | 27% |
-| refusals | 4% | **77%** | 21% | 54% |
-| **hallucination rate** | **56%** | **8%** | **42%** | 25% |
-| citation accuracy | 0 (no citations) | 0 (no citations) | 0 (all invented) | 0 |
-| latency mean / p95 (ms) | 9292 / 27148 | 2289 / 6362 | 7082 / 17074 | 25631 / 51041 |
-
-**Stage-2/3 evaluation extras** (competition proxy — the final grade adds conversational quality
-and efficiency, so we track them from day one, clearly separated from the Stage-1 spec):
-
-| extra | default | strict | cite | Qwen3-32B |
-|---|---|---|---|---|
-| conversational Q (judged, 0–1) | 0.98 | 0.41 | 0.84 | 0.23 |
-| efficiency E (latency+cost bands) | 0.88 | 1.00 | 0.90 | 0.46 |
-| **est. competition score /100** | **42.3** | 22.2 | 39.8 | 17.8 |
-
-Correct by difficulty (default): easy 8/16, medium 4/16, hard 5/16. By domain: business/life 67%, health 50%, **travel 0%**, car/mortgage 17%. Full run ledger: [`../RUNS.md`](../RUNS.md).
-
-## The three required answers
 
 ### 1. Where does the baseline succeed without any Harel documents?
 
@@ -38,20 +14,13 @@ It succeeds where the answer is **Israeli insurance law or industry-standard pra
 Almost always confidently: 56% of default answers are confident contradictions of the ground truth with fabricated specifics — "עד 12 חודשים" where the policy says 100 days (dev-09), "8% מסכום הביטוח" where the truth is 6,000 ₪ (dev-04), 12,000 ₪ where the cap is 24,000 ₪ (dev-06). The **cite** prompt is the cautionary tale: it *invents* authoritative-looking citations ("פוליסת ביטוח מחזיקי אקדח, סעיף 4.2.1, עמוד 7") to documents that don't exist. For an insurer, a confident wrong answer is far worse than "I don't know": it creates reliance, liability, and regulatory exposure. The strict prompt proves the dial exists — hallucinations 56%→8% — but at the cost of refusing 77% of everything, including much of what it knew. **Only retrieval moves both numbers at once.**
 
 ### 3. A question where we disagree with the judge
+`dev-13-car-easy`: "המפתחות שלי ננעלו בתוך הרכב – האם מגיע לי שירות פריצה לרכב במסגרת כתב השירות?". Ground truth: **yes, unconditionally** — a representative comes to the car and breaks in (policy PDF, p. 55). The **cite** baseline answered that per "כתב שירות הראל טרייד אין" the service is given only at arrangement garages and is conditioned on towing, and therefore "אינני יכול לאמת מזכותך לשירות זה מתוך המסמך שברשותי" — and the judge scored it **incorrect + confident** ("the system's answer denies coverage"), i.e., a hallucination. We disagree with the category: the model never denied coverage — it explicitly declined to verify, so the fair verdict is a refusal (the invented "טרייד אין" citation is a real defect, but it belongs to the citation metric, not to confident denial). The judge anchored on the unconditional ground truth and read the hedge as a contradiction.
 
-`dev-13-car-easy` (keys locked in car — does the service cover break-in?). Ground truth: yes, unconditionally. The model answered "depends on your service rider: covered under כתב שירות DRIVE, not under כתב שירות כבישים" — and the judge scored it **incorrect + confident**, i.e., a hallucination. We'd call it partial-correct: the caveat is reasonable customer-service behavior and the DRIVE branch matches the ground truth. Implication at scale: an LLM judge anchors on ground-truth phrasing and punishes legitimate conditional answers, so (a) judged deltas are trustworthy only when large, (b) borderline verdicts need human spot-checks, (c) the judge model + prompts must stay pinned so the bias is at least constant.
+An earlier run of the same variant (preserved at commit `2562109`; results were later regenerated) showed the same bias more sharply: base_default answered "depends on your rider — covered under כתב שירות DRIVE, not under כתב שירות כבישים" — a reasonable conditional whose DRIVE branch matches the ground truth — and was also scored incorrect + confident. Implication at scale: an LLM judge anchors on ground-truth phrasing and punishes legitimate conditional or can't-verify answers, so (a) judged deltas are trustworthy only when large, (b) borderline verdicts need human spot-checks, (c) the judge model + prompts must stay pinned so the bias is at least constant. Reproduce either case: `python ours/show_case.py dev-13-car-easy base_cite` and `python ours/show_case.py dev-13-car-easy base_default --rev 2562109`.
 
 ---
 
-# Part A — Stage-1 evaluation harness (`ours/stage1/eval_harness.py`)
-
-`python ours/stage1/eval_harness.py <answers.jsonl>` measures exactly what the Stage-1 spec demands:
-**relevance, hallucination rate, citation accuracy, latency.** The judge is
-`deepseek-ai/DeepSeek-V4-Pro`, `temperature=0.0`, forced JSON, 5 retries with exponential
-backoff; every verdict carries a one-sentence `reason` and is saved per-question in
-`<run>_verdicts.jsonl` — nothing is silently dropped. Inspect any number:
-`python ours/show_examples.py <run> <metric>`.
-
+# Part A — Stage-1 evaluation harness 
 ```python
 def judge(prompt):
     for attempt in range(5):
@@ -140,61 +109,3 @@ Aggregate: `C = (full + 0.5·partial) / judged` (≤3 citations judged per answe
 
 The runner wraps the full model call: `latency_ms = (time.time() - t0) * 1000` — includes network and queueing, i.e., what a customer feels. Harness aggregates mean / p50 / p95 (max when n<20).
 
-# Part B — Stage-2/3 evaluation (competition proxy, beyond the Stage-1 spec)
-
-The final grade adds conversational quality (10%) and efficiency (10%) on top of the
-Stage-1 four. Stages 2–3 are evaluated with **separate files**:
-[`../stage23/eval_harness.py`](../stage23/eval_harness.py) (Stage-1's four metrics +
-the conversational judge) and [`../stage23/score.py`](../stage23/score.py) (composite).
-Kept apart so the Stage-1 deliverable is exactly what was asked, while our development
-loop optimizes what will actually be graded.
-
-## 5. Conversational quality — judged 1–5, correctness excluded
-
-In `stage23/eval_harness.py`. Exact prompt:
-
-```text
-You are rating the conversational quality of a customer-support reply from an
-insurance company, NOT its factual correctness.
-
-Customer question (Hebrew): {question}
-Support reply: {answer}
-
-Rate ONLY clarity, tone, and flow on a 1-5 scale:
-5 = clear, warm, well-structured, right length, same language as the question,
-    directly addresses the customer
-4 = good but minor issues (slightly too long/short, small structure problems)
-3 = understandable but flawed (wall of text, robotic tone, poor structure,
-    hedging clutter)
-2 = hard to follow, wrong register, ignores the customer's framing, or
-    partially wrong language
-1 = confusing, rude, wrong language entirely, or doesn't engage with the question
-
-A polite, clear refusal can still score 4-5. A correct but unreadable answer
-scores low.
-
-Reply with ONLY a JSON object, no prose, no code fences:
-{"score": 1 | 2 | 3 | 4 | 5, "reason": "<one short sentence>"}
-```
-
-Aggregate: `Q = (mean(scores) − 1) / 4` ∈ [0,1]. Calibration held in practice: fluent DeepSeek 4.92/5 → 0.98; Qwen3-32B leaking chain-of-thought → 0.23.
-
-## 6. Efficiency — arithmetic, no prompt by design
-
-```python
-lat_score  = clamp01(1 - (p50_seconds - 2) / 18)        # 1.0 at <=2s, 0.0 at 20s
-cost_score = clamp01(1 - (cost_per_q - 0.001) / 0.009)  # 1.0 at <=$0.001/q, 0.0 at $0.01/q
-E = 0.5 * lat_score + 0.5 * cost_score                  # cost: $0.5/M in, $2/M out (TF est.)
-```
-
-## Composite score (proxy of the official rubric)
-
-`score = 65·R + 15·C + 10·E + 10·Q` (+5 voice, +5 UI later) — [`../score.py`](../score.py). Every run is logged with config snapshot + git commit + hypothesis to [`../experiments.jsonl`](../experiments.jsonl) by [`../log_run.py`](../log_run.py), which regenerates [`../RUNS.md`](../RUNS.md).
-
-## Known limitations (deliberately visible)
-
-1. **The judge is an LLM** — anchors on ground-truth phrasing; can punish legitimate conditional answers (`dev-13`). Sub-3-point deltas need verdict spot-checks.
-2. **Judge = generator family** for the DeepSeek baseline (self-preference risk); pinning makes the bias constant, so relative deltas stay meaningful.
-3. **pypdf Hebrew extraction** is imperfect; Stage 2's Docling pipeline replaces it.
-4. **temp-0 ≠ deterministic** on TF serving — rescores drift ~±2%.
-5. **E and Q formulas are our proxies** — the official internal versions are unknown; R and C are the trustworthy comparison numbers.

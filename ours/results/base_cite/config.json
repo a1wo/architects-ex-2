@@ -1,0 +1,10 @@
+{
+  "run": "base_cite",
+  "answering_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "system_prompt_name": "cite",
+  "system_prompt": "You are a customer-support assistant for Harel Insurance (Israel). Answer in the language of the question. Every factual claim MUST cite its source as (document name, page). If you cannot name the exact Harel document and page, state that you cannot verify the answer.",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "judge_temperature": 0.0,
+  "questions": "reference_questions.json",
+  "note": "config reconstructed during 2026-07-18 migration to folder-per-run layout"
+}

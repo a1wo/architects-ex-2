@@ -1,0 +1,39 @@
+{
+  "n": 48,
+  "relevance": {
+    "correct": 0.3958333333333333,
+    "partial": 0.0,
+    "incorrect": 0.6041666666666666,
+    "refusal": 0.0
+  },
+  "hallucination_rate": 0.6041666666666666,
+  "citations": {
+    "answers_with_citations": 0.0,
+    "judged": 0,
+    "full": 0,
+    "partial": 0,
+    "none": 0,
+    "invalid": 0
+  },
+  "conversational": {
+    "mean_1to5": 4.8125,
+    "Q": 0.953125
+  },
+  "latency_ms": {
+    "mean": 6061.4874213933945,
+    "p50": 5891.856551170349,
+    "p95": 9252.526247501373
+  },
+  "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
+  "correct_by_domain": {
+    "apartment": 0.16666666666666666,
+    "business": 0.6666666666666666,
+    "car": 0.3333333333333333,
+    "dental": 0.3333333333333333,
+    "health": 0.6666666666666666,
+    "life": 0.6666666666666666,
+    "mortgage": 0.3333333333333333,
+    "travel": 0.0
+  },
+  "harness": "stage23"
+}

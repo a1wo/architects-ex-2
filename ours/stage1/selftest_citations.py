@@ -14,7 +14,8 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent.parent
 qs = json.load(open(root / "reference_questions.json", encoding="utf-8"))
-out = root / "ours" / "results" / "citation_selftest.jsonl"
+out = root / "ours" / "results" / "citation_selftest" / "answers.jsonl"
+out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", encoding="utf-8") as f:
     for q in qs[:3]:
         src = q["ground_truth_sources"][0]["any_of"][0]
@@ -28,4 +29,4 @@ with open(out, "w", encoding="utf-8") as f:
                        ensure_ascii=False) + "\n")
 
 sys.exit(subprocess.call([sys.executable, str(root / "ours" / "stage1" / "eval_harness.py"), str(out),
-                          "--out", str(out.with_suffix(""))], cwd=root))
+                          "--out", str(out.parent)], cwd=root))
