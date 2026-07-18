@@ -25,20 +25,15 @@ def clamp01(x):
     return max(0.0, min(1.0, x))
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("metrics", help="..._metrics.json from eval_harness.py")
-    ap.add_argument("--q", type=float, default=0.70,
-                    help="conversational-quality assumption until we judge it")
-    args = ap.parse_args()
-
-    m = json.load(open(args.metrics, encoding="utf-8"))
+def compute(metrics_path, q_assumed=0.70):
+    """Returns the full score breakdown as a dict (also used by log_run.py)."""
+    m = json.load(open(metrics_path, encoding="utf-8"))
     r, c, lat = m["relevance"], m["citations"], m["latency_ms"]
 
     R = r["correct"] + 0.5 * r["partial"]
     C = (c["full"] + 0.5 * c["partial"]) / c["judged"] if c["judged"] else 0.0
 
-    answers_file = Path(args.metrics.replace("_metrics.json", ".jsonl"))
+    answers_file = Path(str(metrics_path).replace("_metrics.json", ".jsonl"))
     cost_q = None
     if answers_file.exists():
         recs = [json.loads(l) for l in open(answers_file, encoding="utf-8")]
@@ -48,14 +43,25 @@ def main():
     cost_score = clamp01(1 - (cost_q - 0.001) / 0.009) if cost_q is not None else 0.5
     E = 0.5 * lat_score + 0.5 * cost_score
     q_judged = m.get("conversational", {}).get("Q")
-    Q, q_src = (q_judged, "judged") if q_judged is not None else (args.q, "ASSUMED via --q")
+    Q, q_src = (q_judged, "judged") if q_judged is not None else (q_assumed, "ASSUMED")
 
-    total = 65 * R + 15 * C + 10 * E + 10 * Q
-    print(f"R relevance     {R:.3f}  -> {65*R:5.1f} / 65")
-    print(f"C citations     {C:.3f}  -> {15*C:5.1f} / 15")
-    print(f"E efficiency    {E:.3f}  -> {10*E:5.1f} / 10   (p50 {lat['p50']:.0f} ms, ${cost_q if cost_q is not None else float('nan'):.5f}/q)")
-    print(f"Q conversational{Q:7.3f}  -> {10*Q:5.1f} / 10   ({q_src})")
-    print(f"TOTAL           {total:5.1f} / 100")
+    return {"R": R, "C": C, "E": E, "Q": Q, "q_source": q_src,
+            "latency_p50_ms": lat["p50"], "cost_per_q_usd": cost_q,
+            "total": 65 * R + 15 * C + 10 * E + 10 * Q}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("metrics", help="..._metrics.json from eval_harness.py")
+    ap.add_argument("--q", type=float, default=0.70,
+                    help="conversational-quality assumption for pre-Q-judge metrics files")
+    args = ap.parse_args()
+    s = compute(args.metrics, args.q)
+    print(f"R relevance     {s['R']:.3f}  -> {65*s['R']:5.1f} / 65")
+    print(f"C citations     {s['C']:.3f}  -> {15*s['C']:5.1f} / 15")
+    print(f"E efficiency    {s['E']:.3f}  -> {10*s['E']:5.1f} / 10   (p50 {s['latency_p50_ms']:.0f} ms, $/q {s['cost_per_q_usd']})")
+    print(f"Q conversational{s['Q']:7.3f}  -> {10*s['Q']:5.1f} / 10   ({s['q_source']})")
+    print(f"TOTAL           {s['total']:5.1f} / 100")
 
 
 if __name__ == "__main__":
