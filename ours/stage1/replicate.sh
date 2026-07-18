@@ -6,8 +6,12 @@
 #
 #     ./ours/stage1/replicate.sh
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."     # repo root (this script lives in ours/stage1/)
 [ -f .env ] && set -a && source .env && set +a
+if [ -z "${NEBIUS_API_KEY:-}" ]; then
+  echo "NEBIUS_API_KEY not set — put it in .env at the repo root (see ours/README.md)" >&2
+  exit 1
+fi
 PY=.venv/bin/python
 export OPENAI_BASE_URL=https://api.tokenfactory.nebius.com/v1
 export OPENAI_API_KEY=$NEBIUS_API_KEY
