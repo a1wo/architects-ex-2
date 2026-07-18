@@ -2,7 +2,7 @@
 
 Point-by-point answers to the Stage-1 requirements in
 [`exercise2_customer_support_agent.md`](../../exercise2_customer_support_agent.md).
-**The deliverable is [`BASELINE_REPORT.md`](BASELINE_REPORT.md)** (1 page: metrics table + the three required answers).
+**The deliverable is [`BASELINE_REPORT.md`](BASELINE_REPORT.md)**; full measurement detail per metric: [`METHODOLOGY.md`](METHODOLOGY.md) (1 page: metrics table + the three required answers).
 
 ## 1. Measure the baseline ✅
 
