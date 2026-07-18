@@ -1,10 +1,7 @@
 """
-Evaluation harness, two layers:
-
-  DEFAULT (Stage 1 spec) — exactly the four required metrics: relevance,
-  hallucination rate, citation accuracy, latency.
-  --full (Stage 2/3 evaluation) — adds judged conversational quality, feeding
-  the competition-proxy composite in score.py (65R+15C+10E+10Q).
+STAGE 1 evaluation harness — exactly the four metrics the Stage-1 spec requires,
+nothing more. (Stage 2/3 evaluation, which adds conversational quality and the
+competition composite, lives in ours/stage23/ and reuses this module.)
 
 Scores an answers JSONL (from baseline_runner.py / submit_runner.py / our RAG)
 against the dev set's ground truths and reports:
@@ -42,11 +39,11 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))  # tf_client.py lives in the given starter kit at repo root
 from tf_client import chat
 
-CONFIG = json.load(open(Path(__file__).with_name("config.json"), encoding="utf-8"))
+CONFIG = json.load(open(REPO_ROOT / "ours" / "config.json", encoding="utf-8"))
 JUDGE_MODEL = os.environ.get("JUDGE_MODEL", CONFIG["judge_model"])  # pinned; do not bump mid-exercise
 JUDGE_WORKERS = 4
 PAGE_CHARS = 6000  # max chars of cited page text shown to the judge
@@ -65,24 +62,6 @@ Reply with ONLY a JSON object, no prose, no code fences:
 {{"verdict": "correct" | "partial" | "incorrect" | "refusal", "confident": true | false, "reason": "<one short sentence>"}}
 
 "confident" = does the system's answer assert its claims without hedging? (a refusal is never confident)"""
-
-CONVERSATIONAL_PROMPT = """You are rating the conversational quality of a customer-support reply from an insurance company, NOT its factual correctness.
-
-Customer question (Hebrew): {question}
-
-Support reply: {answer}
-
-Rate ONLY clarity, tone, and flow on a 1-5 scale:
-5 = clear, warm, well-structured, right length, same language as the question, directly addresses the customer
-4 = good but minor issues (slightly too long/short, small structure problems)
-3 = understandable but flawed (wall of text, robotic tone, poor structure, hedging clutter)
-2 = hard to follow, wrong register, ignores the customer's framing, or partially wrong language
-1 = confusing, rude, wrong language entirely, or doesn't engage with the question
-
-A polite, clear refusal can still score 4-5. A correct but unreadable answer scores low.
-
-Reply with ONLY a JSON object, no prose, no code fences:
-{{"score": 1 | 2 | 3 | 4 | 5, "reason": "<one short sentence>"}}"""
 
 CITATION_PROMPT = """You are checking a citation in an insurance support answer.
 
@@ -152,7 +131,7 @@ class Corpus:
             return None
 
 
-def score_one(q, ans, corpus, conv=False):
+def score_one(q, ans, corpus):
     v = {"id": q["id"], "domain": q.get("domain"), "difficulty": q.get("difficulty")}
 
     rel = judge(RELEVANCE_PROMPT.format(question=q["question"],
@@ -172,9 +151,6 @@ def score_one(q, ans, corpus, conv=False):
                                           file=file, page=page, page_text=text))
         cite_verdicts.append({"file": file, "page": page, **cv})
     v["citations"] = cite_verdicts
-    if conv:  # Stage-2/3 evaluation extra; not part of the Stage-1 required four
-        v["conversational"] = judge(CONVERSATIONAL_PROMPT.format(question=q["question"],
-                                                                 answer=ans.get("answer", "")))
     v["latency_ms"] = ans.get("latency_ms")
     v["tokens"] = ans.get("tokens")
     return v
@@ -245,33 +221,23 @@ def print_table(m):
     print("\nCorrect by domain: " + ", ".join(f"{d} {v:.0%}" for d, v in m["correct_by_domain"].items()))
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("answers")
-    ap.add_argument("--questions", default="reference_questions.json")
-    ap.add_argument("--corpus", default="corpus")
-    ap.add_argument("--out", default=None, help="prefix for _verdicts.jsonl / _metrics.json")
-    ap.add_argument("--full", action="store_true",
-                    help="Stage-2/3 evaluation: also judge conversational quality. "
-                         "Default (off) = the Stage-1 required four: relevance, "
-                         "hallucination, citations, latency.")
-    args = ap.parse_args()
-
-    questions = json.load(open(args.questions, encoding="utf-8"))
+def evaluate(answers_path, questions_path, corpus_path, out_prefix, score_fn=score_one):
+    """Full pipeline: load -> judge every answer with score_fn -> write verdicts +
+    metrics -> print table. stage23/eval_harness.py reuses this with its own score_fn."""
+    questions = json.load(open(questions_path, encoding="utf-8"))
     if isinstance(questions, dict):
         questions = questions["questions"]
     qby = {q["id"]: q for q in questions}
-    answers = [json.loads(line) for line in open(args.answers, encoding="utf-8")]
+    answers = [json.loads(line) for line in open(answers_path, encoding="utf-8")]
     answers = [a for a in answers if a["id"] in qby]
     if not answers:
         sys.exit("no answers match the question set")
-    corpus = Corpus(args.corpus)
+    corpus = Corpus(corpus_path)
 
     with ThreadPoolExecutor(max_workers=JUDGE_WORKERS) as pool:
-        verdicts = list(pool.map(lambda a: score_one(qby[a["id"]], a, corpus, conv=args.full),
-                                 answers))
+        verdicts = list(pool.map(lambda a: score_fn(qby[a["id"]], a, corpus), answers))
 
-    out = args.out or Path(args.answers).stem
+    out = out_prefix or Path(answers_path).stem
     with open(f"{out}_verdicts.jsonl", "w", encoding="utf-8") as f:
         for v in verdicts:
             f.write(json.dumps(v, ensure_ascii=False) + "\n")
@@ -280,7 +246,18 @@ def main():
               ensure_ascii=False, indent=2)
     print_table(metrics)
     print(f"\nwrote {out}_verdicts.jsonl, {out}_metrics.json")
+    return metrics
+
+
+def make_argparser():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("answers")
+    ap.add_argument("--questions", default="reference_questions.json")
+    ap.add_argument("--corpus", default="corpus")
+    ap.add_argument("--out", default=None, help="prefix for _verdicts.jsonl / _metrics.json")
+    return ap
 
 
 if __name__ == "__main__":
-    main()
+    args = make_argparser().parse_args()
+    evaluate(args.answers, args.questions, args.corpus, args.out)

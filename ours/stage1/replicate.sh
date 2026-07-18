@@ -4,7 +4,7 @@
 # ledger. ~200 model calls + ~400 judge calls ≈ $0.5 of the shared pool.
 # Results land in ours/results/, table in ours/RUNS.md.
 #
-#     ./ours/replicate_stage1.sh
+#     ./ours/stage1/replicate.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 [ -f .env ] && set -a && source .env && set +a
@@ -20,7 +20,7 @@ CITE="You are a customer-support assistant for Harel Insurance (Israel). Answer 
 run () {  # name, extra args..., why
   local name=$1 why=$2; shift 2
   $PY baseline_runner.py --model "$BASE" "$@" --out "ours/results/$name.jsonl"
-  $PY ours/eval_harness.py "ours/results/$name.jsonl" --out "ours/results/$name"
+  $PY ours/stage1/eval_harness.py "ours/results/$name.jsonl" --out "ours/results/$name"
   $PY ours/log_run.py "ours/results/${name}_metrics.json" --model "$BASE" --role baseline --why "$why"
 }
 

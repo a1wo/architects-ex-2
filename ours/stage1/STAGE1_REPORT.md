@@ -43,9 +43,9 @@ Almost always confidently: 56% of default answers are confident contradictions o
 
 ---
 
-# Part A — Stage-1 evaluation harness (the required four metrics)
+# Part A — Stage-1 evaluation harness (`ours/stage1/eval_harness.py`)
 
-`python ours/eval_harness.py <answers.jsonl>` measures exactly what the Stage-1 spec demands:
+`python ours/stage1/eval_harness.py <answers.jsonl>` measures exactly what the Stage-1 spec demands:
 **relevance, hallucination rate, citation accuracy, latency.** The judge is
 `deepseek-ai/DeepSeek-V4-Pro`, `temperature=0.0`, forced JSON, 5 retries with exponential
 backoff; every verdict carries a one-sentence `reason` and is saved per-question in
@@ -141,13 +141,15 @@ The runner wraps the full model call: `latency_ms = (time.time() - t0) * 1000` �
 # Part B — Stage-2/3 evaluation (competition proxy, beyond the Stage-1 spec)
 
 The final grade adds conversational quality (10%) and efficiency (10%) on top of the
-Stage-1 four. We evaluate Stages 2–3 with `eval_harness.py --full` (adds the
-conversational judge) + `score.py` (composite). Kept separate so the Stage-1 deliverable
-is exactly what was asked, while our development loop optimizes what will actually be graded.
+Stage-1 four. Stages 2–3 are evaluated with **separate files**:
+[`../stage23/eval_harness.py`](../stage23/eval_harness.py) (Stage-1's four metrics +
+the conversational judge) and [`../stage23/score.py`](../stage23/score.py) (composite).
+Kept apart so the Stage-1 deliverable is exactly what was asked, while our development
+loop optimizes what will actually be graded.
 
 ## 5. Conversational quality — judged 1–5, correctness excluded
 
-`--full` only. Exact prompt:
+In `stage23/eval_harness.py`. Exact prompt:
 
 ```text
 You are rating the conversational quality of a customer-support reply from an

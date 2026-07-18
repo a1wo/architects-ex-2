@@ -36,7 +36,7 @@ ledger** → regenerate the run table. Then `git add ours/ && git commit && git 
 Scoring an answers file you produced some other way (e.g. the future RAG system):
 
 ```bash
-.venv/bin/python ours/eval_harness.py <answers.jsonl> --out ours/results/<name>
+.venv/bin/python ours/stage23/eval_harness.py <answers.jsonl> --out ours/results/<name>
 .venv/bin/python ours/log_run.py ours/results/<name>_metrics.json --model <model> --role rag --why "<hypothesis>"
 ```
 
@@ -45,12 +45,12 @@ Scoring an answers file you produced some other way (e.g. the future RAG system)
 | File | What it is |
 |---|---|
 | `config.json` | **Single source of truth for models.** `baseline_model` (bar to beat) vs `test_model` (our generator) vs `judge_model` (pinned forever — never bump mid-exercise, scores stop being comparable) |
-| `eval_harness.py` | The measuring stick. 3 LLM-judge prompts: relevance (`correct/partial/incorrect/refusal` + confidence), citation accuracy (resolves each cited {file,page} to the real corpus page, judges `full/partial/none`, nonexistent → `invalid`), conversational quality (1–5 clarity/tone/flow). Plus latency stats. Hallucination = confident AND contradicts ground truth; refusals counted separately on purpose |
-| `score.py` | Composite score: `65·R + 15·C + 10·E + 10·Q` (proxy of the official rubric). E = latency+cost bands — arithmetic, no judge |
+|  `stage1/eval_harness.py` + `stage23/eval_harness.py` | The measuring stick. 3 LLM-judge prompts: relevance (`correct/partial/incorrect/refusal` + confidence), citation accuracy (resolves each cited {file,page} to the real corpus page, judges `full/partial/none`, nonexistent → `invalid`), conversational quality (1–5 clarity/tone/flow). Plus latency stats. Hallucination = confident AND contradicts ground truth; refusals counted separately on purpose |
+|  `stage23/score.py` | Composite score: `65·R + 15·C + 10·E + 10·Q` (proxy of the official rubric). E = latency+cost bands — arithmetic, no judge |
 | `log_run.py` | Experiment ledger. Appends what/why/result + config snapshot + git rev to `experiments.jsonl`, regenerates `RUNS.md` |
 | `RUNS.md` | **Generated** run table — don't edit by hand |
 | `experiments.jsonl` | Append-only ledger, one JSON per run (the full memory of what we tried and why) |
-| `selftest_citations.py` | Proves citation scoring works (real ground-truth pages → `full`, bogus file → `invalid`). Run after touching the harness |
+|  `stage1/selftest_citations.py` | Proves citation scoring works (real ground-truth pages → `full`, bogus file → `invalid`). Run after touching the harness |
 | `run_bare.sh` | Bare-model run + score + log, `baseline` or `test` role |
 |   `stage1/STAGE1_REPORT.md` | Stage-1 deliverable (metrics + the 3 required analysis answers) |
 | `results/` | Raw answers, per-question judge verdicts, metrics JSONs — committed (only `.log` ignored) |

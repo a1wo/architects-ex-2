@@ -27,5 +27,5 @@ with open(out, "w", encoding="utf-8") as f:
                         "latency_ms": 1000, "tokens": {"prompt": 0, "completion": 0}},
                        ensure_ascii=False) + "\n")
 
-sys.exit(subprocess.call([sys.executable, str(root / "ours" / "eval_harness.py"), str(out),
+sys.exit(subprocess.call([sys.executable, str(root / "ours" / "stage1" / "eval_harness.py"), str(out),
                           "--out", str(out.with_suffix(""))], cwd=root))

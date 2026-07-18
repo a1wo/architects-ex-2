@@ -18,6 +18,6 @@ mkdir -p ours/results
 
 echo "== $ROLE model: $MODEL -> ours/results/$NAME.jsonl"
 $PY baseline_runner.py --model "$MODEL" --out "ours/results/$NAME.jsonl"
-$PY ours/eval_harness.py "ours/results/$NAME.jsonl" --full --out "ours/results/$NAME"
+$PY ours/stage23/eval_harness.py "ours/results/$NAME.jsonl" --out "ours/results/$NAME"
 $PY ours/log_run.py "ours/results/${NAME}_metrics.json" --model "$MODEL" --role "$ROLE" --why "$WHY"
 echo "== done; ledger + RUNS.md updated — commit ours/ and push"
