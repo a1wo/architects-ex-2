@@ -1,6 +1,6 @@
 corpus/
 .venv/
-ours/results/
 __pycache__/
 *.pyc
 .env
+ours/results/*.log
