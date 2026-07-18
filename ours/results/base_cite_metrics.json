@@ -1,12 +1,12 @@
 {
   "n": 48,
   "relevance": {
-    "correct": 0.3125,
-    "partial": 0.0625,
-    "incorrect": 0.4166666666666667,
-    "refusal": 0.20833333333333334
+    "correct": 0.25,
+    "partial": 0.10416666666666667,
+    "incorrect": 0.5625,
+    "refusal": 0.08333333333333333
   },
-  "hallucination_rate": 0.4166666666666667,
+  "hallucination_rate": 0.5625,
   "citations": {
     "answers_with_citations": 0.0,
     "judged": 0,
@@ -16,23 +16,23 @@
     "invalid": 0
   },
   "conversational": {
-    "mean_1to5": 4.375,
-    "Q": 0.84375
+    "mean_1to5": null,
+    "Q": null
   },
   "latency_ms": {
-    "mean": 7081.57920340697,
-    "p50": 5515.577077865601,
-    "p95": 17074.229323863983
+    "mean": 26075.256422162056,
+    "p50": 22487.70308494568,
+    "p95": 48558.580446243286
   },
   "judge_model": "deepseek-ai/DeepSeek-V4-Pro",
   "correct_by_domain": {
     "apartment": 0.16666666666666666,
-    "business": 0.6666666666666666,
-    "car": 0.0,
+    "business": 0.5,
+    "car": 0.16666666666666666,
     "dental": 0.16666666666666666,
     "health": 0.3333333333333333,
-    "life": 0.6666666666666666,
-    "mortgage": 0.3333333333333333,
+    "life": 0.3333333333333333,
+    "mortgage": 0.16666666666666666,
     "travel": 0.16666666666666666
   }
 }

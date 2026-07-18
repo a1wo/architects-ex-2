@@ -9,9 +9,9 @@ in `ours/config.json`. Only compare runs scored by the same judge. (+5 voice / +
 
 | run | date | model | role | R | C | E | Q | **/100** | why |
 |---|---|---|---|---|---|---|---|---|---|
-| `base_default` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.365 | 0.000 | 0.88 | 0.98 | **42.3** | Stage-1 bar: what does the strongest open-weights model know bare, with the provided prompt? |
-| `base_strict` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.125 | 0.000 | 1.00 | 0.41 | **22.2** | prompt strategy 1: does 'answer only if certain' kill hallucinations, and at what cost? |
-| `base_cite` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.344 | 0.000 | 0.90 | 0.84 | **39.8** | prompt strategy 2: does forcing citations change the failure profile? (it fabricates them) |
-| `bare_test_Qwen_Qwen3-32B` | 2026-07-18 | Qwen/Qwen3-32B | test | 0.167 | 0.000 | 0.46 | 0.23 | **17.8** | how big is the bare-model gap between our small test model and the DeepSeek baseline? (also: thinking-model latency cost) |
+| `base_default` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.333 | 0.000 | 0.50 | 0.70* | **33.7** | Stage-1 bar: strongest open-weights model, bare, provided prompt |
+| `base_strict` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.156 | 0.000 | 0.60 | 0.70* | **23.1** | prompt strategy 1: refuse-if-unsure |
+| `base_cite` | 2026-07-18 | deepseek-ai/DeepSeek-V4-Pro | baseline | 0.302 | 0.000 | 0.50 | 0.70* | **31.6** | prompt strategy 2: always-cite (it fabricates) |
+| `bare_test_Qwen_Qwen3-32B` | 2026-07-18 | Qwen/Qwen3-32B | test | 0.104 | 0.000 | 0.46 | 0.22 | **13.6** | small test model bare: how big is the gap the RAG must close? |
 
 `*` = Q assumed, not judged. Full metrics per run: `ours/results/<run>_metrics.json`; raw answers + per-question judge verdicts alongside. Ledger with config snapshots: `ours/experiments.jsonl`.
