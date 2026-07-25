@@ -1,7 +1,11 @@
 corpus/
 .venv/
+.venv-docling/
+ours/stage2/parser_bench/out/
+ours/stage2/parsed/
 __pycache__/
 *.pyc
 .env
 ours/results/*.log
 .DS_Store
+ours/stage2/chroma/
