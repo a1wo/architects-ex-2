@@ -8,4 +8,4 @@ __pycache__/
 .env
 ours/results/*.log
 .DS_Store
-ours/stage2/chroma/
+ours/stage2/dbs/

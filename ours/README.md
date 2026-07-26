@@ -14,6 +14,26 @@ starter kit, untouched (`baseline_runner.py`, `tf_client.py`, `contract.py`,
   ground every answer in real {file, page} citations.
 - **Stage 3 (agent + `/ask` API, due Aug 2)**: routing, contract, blind-set submission.
 
+## Stage 2 playground (chatbot + UI)
+
+Strategies are pluggable and named, in two independent axes:
+
+- **DB strategies** — `stage2/dbs/<parser__embedder__chunking>/` (e.g.
+  `docling__bge-m3__para300-1400`). Build a new one with
+  `stage2/ingest/embed_index.py --db-name <name>` and it appears in the UI.
+- **Chat strategies** — `stage2/strategies/*.py`, subclass `base.Strategy`
+  with a stable `name` + `params`; auto-registered, appears in the UI.
+  First one: `topk-context-stuffing` (retrieve top-K paragraphs → stuff into
+  prompt → cited JSON answer).
+
+The UI (`stage2/ui/`, strategy-agnostic) lets you pick strategy × DB × model,
+tune params, and inspect retrieved chunks/citations/cost per answer. It also
+exposes the official `POST /ask` contract on the same port.
+
+```bash
+ours/stage2/ui/serve.sh        # http://localhost:8010 (PORT=... to change)
+```
+
 ## One-time setup
 
 ```bash

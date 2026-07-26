@@ -49,8 +49,14 @@ def compute(metrics_path, q_assumed=0.70):
     cost_q = None
     if answers_file.exists():
         recs = [json.loads(l) for l in open(answers_file, encoding="utf-8")]
-        cost_q = sum(a["tokens"]["prompt"] * PRICE_IN + a["tokens"]["completion"] * PRICE_OUT
-                     for a in recs) / 1e6 / len(recs)
+        # bare runners record token counts; /ask-contract runs (submit_runner)
+        # record the endpoint's own cost_usd estimate instead
+        def rec_cost(a):
+            if "tokens" in a:
+                return (a["tokens"]["prompt"] * PRICE_IN
+                        + a["tokens"]["completion"] * PRICE_OUT) / 1e6
+            return a.get("cost_usd") or 0.0
+        cost_q = sum(rec_cost(a) for a in recs) / len(recs)
     lat_score = clamp01(1 - (lat["p50"] / 1000 - 2) / 18)
     cost_score = clamp01(1 - (cost_q - 0.001) / 0.009) if cost_q is not None else 0.5
     E = 0.5 * lat_score + 0.5 * cost_score

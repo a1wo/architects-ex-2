@@ -26,7 +26,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CORPUS = REPO_ROOT / "corpus"
 PARSED = REPO_ROOT / "ours" / "stage2" / "parsed" / "docling"
-CHROMA_PATH = REPO_ROOT / "ours" / "stage2" / "chroma"
+DBS_DIR = REPO_ROOT / "ours" / "stage2" / "dbs"
+DEFAULT_DB = "docling__bge-m3__para300-1400"  # parse__embedder__chunking
 
 MODEL = "BAAI/bge-m3"
 DOC_CHAR_CAP = 24000      # ~8k tokens; bge-m3 truncates there anyway
@@ -104,14 +105,17 @@ def main():
     ap.add_argument("--granularity", default="all",
                     choices=["all", "document", "page", "paragraph"])
     ap.add_argument("--batch", type=int, default=32)
+    ap.add_argument("--db-name", default=DEFAULT_DB,
+                    help="strategy-descriptive dir name under ours/stage2/dbs/")
     args = ap.parse_args()
 
     import chromadb
     from sentence_transformers import SentenceTransformer
 
-    client = chromadb.PersistentClient(path=str(CHROMA_PATH))
+    db_path = DBS_DIR / args.db_name
+    client = chromadb.PersistentClient(path=str(db_path))
     model = SentenceTransformer(MODEL)
-    print(f"model on {model.device}, chroma at {CHROMA_PATH}", flush=True)
+    print(f"model on {model.device}, chroma at {db_path}", flush=True)
 
     grans = list(COLLECTIONS) if args.granularity == "all" else [args.granularity]
     docs = load_docs(args.limit)

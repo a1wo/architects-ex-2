@@ -1,0 +1,568 @@
+{
+ "db": "docling__bge-m3__para300-1400",
+ "kmax": 10,
+ "rows": [
+  {
+   "k": 1,
+   "file_hit": 0.375,
+   "page_hit": 0.16666666666666666,
+   "full_cover": 0.14583333333333334
+  },
+  {
+   "k": 2,
+   "file_hit": 0.4583333333333333,
+   "page_hit": 0.22916666666666666,
+   "full_cover": 0.1875
+  },
+  {
+   "k": 3,
+   "file_hit": 0.5416666666666666,
+   "page_hit": 0.2708333333333333,
+   "full_cover": 0.22916666666666666
+  },
+  {
+   "k": 4,
+   "file_hit": 0.6041666666666666,
+   "page_hit": 0.3333333333333333,
+   "full_cover": 0.2708333333333333
+  },
+  {
+   "k": 5,
+   "file_hit": 0.6041666666666666,
+   "page_hit": 0.3333333333333333,
+   "full_cover": 0.2708333333333333
+  },
+  {
+   "k": 6,
+   "file_hit": 0.6666666666666666,
+   "page_hit": 0.375,
+   "full_cover": 0.3333333333333333
+  },
+  {
+   "k": 7,
+   "file_hit": 0.7083333333333334,
+   "page_hit": 0.4583333333333333,
+   "full_cover": 0.4166666666666667
+  },
+  {
+   "k": 8,
+   "file_hit": 0.7083333333333334,
+   "page_hit": 0.4583333333333333,
+   "full_cover": 0.4166666666666667
+  },
+  {
+   "k": 9,
+   "file_hit": 0.7708333333333334,
+   "page_hit": 0.5,
+   "full_cover": 0.4583333333333333
+  },
+  {
+   "k": 10,
+   "file_hit": 0.7708333333333334,
+   "page_hit": 0.5,
+   "full_cover": 0.4583333333333333
+  }
+ ],
+ "per_question": [
+  {
+   "id": "dev-01-apartment-easy",
+   "difficulty": "easy",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-02-apartment-easy",
+   "difficulty": "easy",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-03-apartment-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-04-apartment-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-05-apartment-hard",
+   "difficulty": "hard",
+   "first_file": [
+    1,
+    null
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-06-apartment-hard",
+   "difficulty": "hard",
+   "first_file": [
+    7
+   ],
+   "first_page": [
+    7
+   ]
+  },
+  {
+   "id": "dev-07-business-easy",
+   "difficulty": "easy",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-08-business-easy",
+   "difficulty": "easy",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-09-business-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-10-business-medium",
+   "difficulty": "medium",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-11-business-hard",
+   "difficulty": "hard",
+   "first_file": [
+    null,
+    null
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-12-business-hard",
+   "difficulty": "hard",
+   "first_file": [
+    6
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-13-car-easy",
+   "difficulty": "easy",
+   "first_file": [
+    3
+   ],
+   "first_page": [
+    7
+   ]
+  },
+  {
+   "id": "dev-14-car-easy",
+   "difficulty": "easy",
+   "first_file": [
+    3
+   ],
+   "first_page": [
+    7
+   ]
+  },
+  {
+   "id": "dev-15-car-medium",
+   "difficulty": "medium",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-16-car-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-17-car-hard",
+   "difficulty": "hard",
+   "first_file": [
+    1,
+    3
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-18-car-hard",
+   "difficulty": "hard",
+   "first_file": [
+    9
+   ],
+   "first_page": [
+    9
+   ]
+  },
+  {
+   "id": "dev-19-dental-easy",
+   "difficulty": "easy",
+   "first_file": [
+    3
+   ],
+   "first_page": [
+    3
+   ]
+  },
+  {
+   "id": "dev-20-dental-easy",
+   "difficulty": "easy",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-21-dental-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-22-dental-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-23-dental-hard",
+   "difficulty": "hard",
+   "first_file": [
+    1,
+    6
+   ],
+   "first_page": [
+    1,
+    6
+   ]
+  },
+  {
+   "id": "dev-24-dental-hard",
+   "difficulty": "hard",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-25-health-easy",
+   "difficulty": "easy",
+   "first_file": [
+    4
+   ],
+   "first_page": [
+    4
+   ]
+  },
+  {
+   "id": "dev-26-health-easy",
+   "difficulty": "easy",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-27-health-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-28-health-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-29-health-hard",
+   "difficulty": "hard",
+   "first_file": [
+    9,
+    null
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-30-health-hard",
+   "difficulty": "hard",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-31-life-easy",
+   "difficulty": "easy",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-32-life-easy",
+   "difficulty": "easy",
+   "first_file": [
+    9
+   ],
+   "first_page": [
+    9
+   ]
+  },
+  {
+   "id": "dev-33-life-medium",
+   "difficulty": "medium",
+   "first_file": [
+    4
+   ],
+   "first_page": [
+    4
+   ]
+  },
+  {
+   "id": "dev-34-life-medium",
+   "difficulty": "medium",
+   "first_file": [
+    6
+   ],
+   "first_page": [
+    6
+   ]
+  },
+  {
+   "id": "dev-35-life-hard",
+   "difficulty": "hard",
+   "first_file": [
+    null,
+    null
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-36-life-hard",
+   "difficulty": "hard",
+   "first_file": [
+    2,
+    null
+   ],
+   "first_page": [
+    2,
+    null
+   ]
+  },
+  {
+   "id": "dev-37-mortgage-easy",
+   "difficulty": "easy",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    1
+   ]
+  },
+  {
+   "id": "dev-38-mortgage-easy",
+   "difficulty": "easy",
+   "first_file": [
+    7
+   ],
+   "first_page": [
+    7
+   ]
+  },
+  {
+   "id": "dev-39-mortgage-medium",
+   "difficulty": "medium",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-40-mortgage-medium",
+   "difficulty": "medium",
+   "first_file": [
+    1
+   ],
+   "first_page": [
+    2
+   ]
+  },
+  {
+   "id": "dev-41-mortgage-hard",
+   "difficulty": "hard",
+   "first_file": [
+    3,
+    1
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-42-mortgage-hard",
+   "difficulty": "hard",
+   "first_file": [
+    2
+   ],
+   "first_page": [
+    2
+   ]
+  },
+  {
+   "id": "dev-43-travel-easy",
+   "difficulty": "easy",
+   "first_file": [
+    null
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-44-travel-easy",
+   "difficulty": "easy",
+   "first_file": [
+    3
+   ],
+   "first_page": [
+    3
+   ]
+  },
+  {
+   "id": "dev-45-travel-medium",
+   "difficulty": "medium",
+   "first_file": [
+    6
+   ],
+   "first_page": [
+    6
+   ]
+  },
+  {
+   "id": "dev-46-travel-medium",
+   "difficulty": "medium",
+   "first_file": [
+    2
+   ],
+   "first_page": [
+    null
+   ]
+  },
+  {
+   "id": "dev-47-travel-hard",
+   "difficulty": "hard",
+   "first_file": [
+    2,
+    null
+   ],
+   "first_page": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "dev-48-travel-hard",
+   "difficulty": "hard",
+   "first_file": [
+    null,
+    4
+   ],
+   "first_page": [
+    null,
+    4
+   ]
+  }
+ ]
+}

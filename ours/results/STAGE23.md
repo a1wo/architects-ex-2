@@ -2,10 +2,11 @@
 
 Stage-2/3 evaluation: same four metrics from the same pinned judge, PLUS judged conversational quality (Q) and the composite competition proxy `65·R + 15·C + 10·E + 10·Q` (see ours/stage23/score.py). Only runs with a judged Q appear here.
 
-24 runs, ranked by total. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
+25 runs, ranked by total. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
 
 | run | model | prompt | correct | partial | incorrect | refusal | halluc | p50_s | Q | E | cost_per_q | total | date | why |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [`rag_topk8_moonshotai_Kimi-K2.6`](rag_topk8_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 62% | 8% | 8% | 21% | 8% | 9.4s | 73% | 29% | $0.0103 | **65.8** | 2026-07-26 | First RAG run: topk-context-stuffing k=8 on docling__bge-m3__para300-1400, reasoning on. Hypothesis: grounding in retrieved pages beats bigger bare models. |
 | [`bare_nvidia_Nemotron-3-Ultra-550b-a55b`](bare_nvidia_Nemotron-3-Ultra-550b-a55b/cases.csv) | nvidia/Nemotron-3-Ultra-550b-a55b | default | 31% | 6% | 40% | 23% | 35% | 3.5s | 77% | 94% | $0.0014 | **35.1** | 2026-07-18 | Nemotron flagship bare: does NVIDIA's biggest model know Israeli insurance? |
 | [`bare_moonshotai_Kimi-K2.6`](bare_moonshotai_Kimi-K2.6/cases.csv) | moonshotai/Kimi-K2.6 | default | 38% | 6% | 38% | 19% | 31% | 26.6s | 97% | 20% | $0.0064 | **34.2** | 2026-07-18 | Kimi flagship: strong agentic model, bare |
 | [`bare_openai_gpt-oss-120b`](bare_openai_gpt-oss-120b/cases.csv) | openai/gpt-oss-120b | default | 40% | 0% | 60% | 0% | 60% | 5.9s | 95% | 81% | $0.0025 | **33.5** | 2026-07-18 | OpenAI open-weights: different training data mix |

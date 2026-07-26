@@ -2,10 +2,11 @@
 
 Stage-1 evaluation: the four spec metrics (relevance, hallucination, citations, latency). This page shows the stage-1 view of EVERY run: stage23-scored runs are included because stage23 embeds the full stage-1 evaluation (same pinned judge, same prompts) — see the `scored_by` column. No conversational quality, no composite score here.
 
-27 runs, ranked by correct. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
+28 runs, ranked by correct. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
 
 | run | model | prompt | correct | partial | incorrect | refusal | halluc | p50_s | scored_by | date | why |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| [`rag_topk8_moonshotai_Kimi-K2.6`](rag_topk8_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 62% | 8% | 8% | 21% | 8% | 9.4s | stage23 | 2026-07-26 | First RAG run: topk-context-stuffing k=8 on docling__bge-m3__para300-1400, reasoning on. Hypothesis: grounding in retrieved pages beats bigger bare models. |
 | [`bare_openai_gpt-oss-120b`](bare_openai_gpt-oss-120b/cases.csv) | openai/gpt-oss-120b | default | 40% | 0% | 60% | 0% | 60% | 5.9s | stage23 | 2026-07-18 | OpenAI open-weights: different training data mix |
 | [`bare_moonshotai_Kimi-K2.6`](bare_moonshotai_Kimi-K2.6/cases.csv) | moonshotai/Kimi-K2.6 | default | 38% | 6% | 38% | 19% | 31% | 26.6s | stage23 | 2026-07-18 | Kimi flagship: strong agentic model, bare |
 | [`bare_zai-org_GLM-5.2`](bare_zai-org_GLM-5.2/cases.csv) | zai-org/GLM-5.2 | default | 33% | 2% | 48% | 17% | 44% | 61.6s | stage23 | 2026-07-18 | GLM flagship: already used for cited-runner probe |

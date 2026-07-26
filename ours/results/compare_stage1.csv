@@ -1,4 +1,5 @@
 ﻿run,model,prompt,correct,partial,incorrect,refusal,halluc,p50_s,scored_by,date,why
+rag_topk8_moonshotai_Kimi-K2.6,?,—,0.625,0.08333333333333333,0.08333333333333333,0.20833333333333334,0.08333333333333333,9.411321997642517,stage23,2026-07-26,"First RAG run: topk-context-stuffing k=8 on docling__bge-m3__para300-1400, reasoning on. Hypothesis: grounding in retrieved pages beats bigger bare models."
 bare_openai_gpt-oss-120b,openai/gpt-oss-120b,default,0.3958333333333333,0.0,0.6041666666666666,0.0,0.6041666666666666,5.891856551170349,stage23,2026-07-18,OpenAI open-weights: different training data mix
 bare_moonshotai_Kimi-K2.6,moonshotai/Kimi-K2.6,default,0.375,0.0625,0.375,0.1875,0.3125,26.589030504226685,stage23,2026-07-18,"Kimi flagship: strong agentic model, bare"
 bare_zai-org_GLM-5.2,zai-org/GLM-5.2,default,0.3333333333333333,0.020833333333333332,0.4791666666666667,0.16666666666666666,0.4375,61.59281349182129,stage23,2026-07-18,GLM flagship: already used for cited-runner probe
