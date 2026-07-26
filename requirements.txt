@@ -2,6 +2,6 @@ fastapi
 uvicorn
 pydantic>=2
 requests
-litellm
+openai
 huggingface_hub
 python-bidi

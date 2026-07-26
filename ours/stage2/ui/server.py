@@ -24,11 +24,12 @@ for line in (REPO_ROOT / ".env").read_text().splitlines():
         k, v = line.split("=", 1)
         os.environ.setdefault(k.strip(), v.strip())
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import stt
 from contract import AskRequest, AskResponse
 from strategies import STRATEGIES
 from strategies.retrieval import DEFAULT_DB, list_dbs
@@ -111,6 +112,125 @@ def api_chat_stream(req: ChatRequest):
             yield f"data: {json.dumps(ev)}\n\n"
 
     return StreamingResponse(gen(), media_type="text/event-stream")
+
+
+# Local Whisper STT (see stt.py). Load/unload are explicit so the ~GB model
+# only occupies RAM while the mic feature is in use; load returns immediately
+# and the UI polls GET /api/stt until status == "loaded".
+@app.get("/api/stt")
+def stt_status():
+    return {**stt.status(), "models": stt.MODELS}
+
+
+@app.post("/api/stt/load")
+def stt_load(model: str = stt.MODELS[0]):
+    if model not in stt.MODELS:
+        raise HTTPException(404, f"unknown stt model {model!r}")
+    return stt.load(model)
+
+
+@app.post("/api/stt/unload")
+def stt_unload():
+    return stt.unload()
+
+
+@app.post("/api/stt/transcribe")
+def stt_transcribe(audio: UploadFile):
+    try:
+        return stt.transcribe(audio.file.read())
+    except RuntimeError as e:
+        raise HTTPException(409, str(e))
+    except Exception as e:
+        raise HTTPException(500, f"{type(e).__name__}: {e}")
+
+
+# ---- results browser (UI "Runs" / analysis tabs): read-only over ours/results/
+RESULTS_DIR = REPO_ROOT / "ours" / "results"
+LEDGER = REPO_ROOT / "ours" / "experiments.jsonl"
+
+import importlib.util
+
+_spec = importlib.util.spec_from_file_location(
+    "stage23_score", REPO_ROOT / "ours" / "stage23" / "score.py")
+_score = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_score)
+
+
+def _ledger_by_run():
+    out = {}
+    if LEDGER.exists():
+        for line in LEDGER.read_text().splitlines():
+            try:
+                r = json.loads(line)
+                out[r.get("name")] = r
+            except json.JSONDecodeError:
+                continue
+    return out
+
+
+@app.get("/api/runs")
+def runs():
+    ledger = _ledger_by_run()
+    out = []
+    for d in sorted(RESULTS_DIR.iterdir()):
+        mp = d / "metrics.json"
+        if not d.is_dir() or not mp.exists() or "selftest" in d.name:
+            continue
+        m = json.loads(mp.read_text())
+        try:
+            s = _score.compute(mp)
+        except Exception:
+            s = None
+        led = ledger.get(d.name, {})
+        out.append({"run": d.name, "harness": m.get("harness"), "n": m.get("n"),
+                    "relevance": m.get("relevance"),
+                    "hallucination_rate": m.get("hallucination_rate"),
+                    "citations": m.get("citations"),
+                    "latency_ms": m.get("latency_ms"),
+                    "conversational": m.get("conversational"),
+                    "correct_by_domain": m.get("correct_by_domain"),
+                    "model": led.get("model"), "role": led.get("role"),
+                    "why": led.get("why"), "ts": led.get("ts"), "score": s})
+    out.sort(key=lambda r: (r["score"] or {}).get("total", -1), reverse=True)
+    return out
+
+
+@app.get("/api/runs/{name}")
+def run_detail(name: str):
+    d = RESULTS_DIR / name
+    if "/" in name or ".." in name or not (d / "answers.jsonl").exists():
+        raise HTTPException(404, f"unknown run {name!r}")
+    questions = json.load(open(REPO_ROOT / "reference_questions.json"))
+    if isinstance(questions, dict):
+        questions = questions["questions"]
+    answers = {r["id"]: r for r in
+               map(json.loads, open(d / "answers.jsonl", encoding="utf-8"))}
+    verdicts = {}
+    if (d / "verdicts.jsonl").exists():
+        verdicts = {r["id"]: r for r in
+                    map(json.loads, open(d / "verdicts.jsonl", encoding="utf-8"))}
+    items = []
+    for q in questions:
+        a = answers.get(q["id"]) or {}
+        v = verdicts.get(q["id"]) or {}
+        rel = v.get("relevance") or {}
+        items.append({
+            "id": q["id"], "domain": q["domain"], "difficulty": q["difficulty"],
+            "question": q["question"],
+            "ground_truth": q.get("ground_truth_answer"),
+            "gt_sources": q.get("ground_truth_sources", []),
+            "answer": a.get("answer"),
+            "citations": a.get("citations", []),
+            "latency_ms": a.get("latency_ms"), "cost_usd": a.get("cost_usd"),
+            "verdict": rel.get("verdict"), "confident": rel.get("confident"),
+            "verdict_reason": rel.get("reason"),
+            # harness definition: hallucination = confident AND contradicts GT
+            "hallucination": rel.get("verdict") == "incorrect"
+                             and bool(rel.get("confident")),
+            "citation_verdicts": v.get("citations", []),
+            "conversational": v.get("conversational"),
+        })
+    return {"run": name, "items": items}
 
 
 @app.get("/health")

@@ -9,3 +9,4 @@ __pycache__/
 ours/results/*.log
 .DS_Store
 ours/stage2/dbs/
+ours/stage2/ui/models/

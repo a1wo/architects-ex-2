@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 
-import litellm
+from openai import OpenAI
 
 BASE_URL = os.environ.get("NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1")
 # the API doesn't return cost, so we estimate: $/1M tokens (in, out),
@@ -21,13 +21,13 @@ EST_PRICE = (0.5, 2.0)
 
 
 def chat(messages, model, max_tokens=1024, temperature=0.2, quiet=False, **kw):
-    """OpenAI-compatible chat completion via litellm; prints a per-call cost estimate."""
+    """OpenAI-compatible chat completion; prints a per-call cost estimate."""
     key = os.environ.get("NEBIUS_API_KEY") or sys.exit("NEBIUS_API_KEY not set")
-    # openai/ prefix: TF model ids contain "/" which litellm would misread as
-    # a provider; force the openai-compatible route to BASE_URL instead
-    resp = litellm.completion(model=f"openai/{model}", api_base=BASE_URL, api_key=key,
-                              messages=messages, max_tokens=max_tokens,
-                              temperature=temperature, timeout=180, **kw)
+    client = OpenAI(base_url=BASE_URL, api_key=key)
+    resp = client.chat.completions.create(model=model, messages=messages,
+                                          max_tokens=max_tokens,
+                                          temperature=temperature,
+                                          timeout=180, **kw)
     u = resp.usage
     cost = (u.prompt_tokens * EST_PRICE[0] + u.completion_tokens * EST_PRICE[1]) / 1e6
     if not quiet:

@@ -18,7 +18,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import litellm
+from openai import OpenAI
 
 WORKERS = 12
 DEFAULT_SYSTEM = ("You are a customer-support assistant for Harel Insurance (Israel). "
@@ -26,14 +26,14 @@ DEFAULT_SYSTEM = ("You are a customer-support assistant for Harel Insurance (Isr
                   "If you cite a source, cite the exact document and page.")
 
 
-def ask(model, kwargs, system_prompt, q):
+def ask(client, model, system_prompt, q):
     for attempt in range(4):
         t0 = time.time()
         try:
-            resp = litellm.completion(model=model, messages=[
+            resp = client.chat.completions.create(model=model, messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": q["question"]}],
-                timeout=120, **kwargs)
+                timeout=120)
             return {"id": q["id"],
                     "answer": resp.choices[0].message.content or "",  # some models return null content (empty refusal)
                     "citations": [],  # bare model has no documents -- that's the point
@@ -59,11 +59,8 @@ def main():
                     help="answers path; convention: ours/results/<run>/answers.jsonl")
     args = ap.parse_args()
 
-    model, kwargs = args.model, {}
-    base = os.environ.get("OPENAI_BASE_URL")
-    if base:  # same routing rule as the given baseline_runner.py
-        kwargs["api_base"] = base
-        model = f"openai/{model.removeprefix('openai/')}"
+    client = OpenAI()  # reads OPENAI_API_KEY + OPENAI_BASE_URL from the env
+    base = os.environ.get("OPENAI_BASE_URL")  # kept for the run-config record
 
     questions = json.load(open(args.questions, encoding="utf-8"))
     if isinstance(questions, dict):
@@ -93,7 +90,7 @@ def main():
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        recs = list(pool.map(lambda q: ask(model, kwargs, args.system_prompt, q), questions))
+        recs = list(pool.map(lambda q: ask(client, args.model, args.system_prompt, q), questions))
     with open(args.out, "w", encoding="utf-8") as out:
         for rec in recs:  # original question order
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")

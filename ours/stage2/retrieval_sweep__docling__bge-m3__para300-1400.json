@@ -1,6 +1,6 @@
 {
  "db": "docling__bge-m3__para300-1400",
- "kmax": 10,
+ "kmax": 30,
  "rows": [
   {
    "k": 1,
@@ -61,6 +61,126 @@
    "file_hit": 0.7708333333333334,
    "page_hit": 0.5,
    "full_cover": 0.4583333333333333
+  },
+  {
+   "k": 11,
+   "file_hit": 0.7916666666666666,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 12,
+   "file_hit": 0.8125,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 13,
+   "file_hit": 0.8125,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 14,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 15,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 16,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 17,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 18,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5208333333333334,
+   "full_cover": 0.4791666666666667
+  },
+  {
+   "k": 19,
+   "file_hit": 0.8333333333333334,
+   "page_hit": 0.5416666666666666,
+   "full_cover": 0.5
+  },
+  {
+   "k": 20,
+   "file_hit": 0.8541666666666666,
+   "page_hit": 0.5416666666666666,
+   "full_cover": 0.5
+  },
+  {
+   "k": 21,
+   "file_hit": 0.8541666666666666,
+   "page_hit": 0.5416666666666666,
+   "full_cover": 0.5
+  },
+  {
+   "k": 22,
+   "file_hit": 0.875,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 23,
+   "file_hit": 0.875,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 24,
+   "file_hit": 0.875,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 25,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 26,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 27,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5625,
+   "full_cover": 0.5208333333333334
+  },
+  {
+   "k": 28,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5833333333333334,
+   "full_cover": 0.5416666666666666
+  },
+  {
+   "k": 29,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5833333333333334,
+   "full_cover": 0.5416666666666666
+  },
+  {
+   "k": 30,
+   "file_hit": 0.8958333333333334,
+   "page_hit": 0.5833333333333334,
+   "full_cover": 0.5416666666666666
   }
  ],
  "per_question": [
@@ -68,10 +188,10 @@
    "id": "dev-01-apartment-easy",
    "difficulty": "easy",
    "first_file": [
-    null
+    11
    ],
    "first_page": [
-    null
+    11
    ]
   },
   {
@@ -171,7 +291,7 @@
    "difficulty": "hard",
    "first_file": [
     null,
-    null
+    14
    ],
    "first_page": [
     null,
@@ -349,7 +469,7 @@
     1
    ],
    "first_page": [
-    null
+    22
    ]
   },
   {
@@ -368,17 +488,17 @@
    "id": "dev-30-health-hard",
    "difficulty": "hard",
    "first_file": [
-    null
+    20
    ],
    "first_page": [
-    null
+    28
    ]
   },
   {
    "id": "dev-31-life-easy",
    "difficulty": "easy",
    "first_file": [
-    null
+    22
    ],
    "first_page": [
     null
@@ -418,7 +538,7 @@
    "id": "dev-35-life-hard",
    "difficulty": "hard",
    "first_file": [
-    null,
+    25,
     null
    ],
    "first_page": [
@@ -504,10 +624,10 @@
    "id": "dev-43-travel-easy",
    "difficulty": "easy",
    "first_file": [
-    null
+    12
    ],
    "first_page": [
-    null
+    19
    ]
   },
   {
@@ -545,7 +665,7 @@
    "difficulty": "hard",
    "first_file": [
     2,
-    null
+    12
    ],
    "first_page": [
     null,
@@ -556,7 +676,7 @@
    "id": "dev-48-travel-hard",
    "difficulty": "hard",
    "first_file": [
-    null,
+    13,
     4
    ],
    "first_page": [

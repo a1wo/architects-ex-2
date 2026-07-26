@@ -4,7 +4,7 @@ but returns (text, cost_estimate) so strategies can fill StrategyResult.cost_usd
 
 import os
 
-import litellm
+from openai import OpenAI
 
 BASE_URL = os.environ.get("NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1")
 EST_PRICE = (0.5, 2.0)  # $/1M tokens (in, out) — same estimate as root tf_client
@@ -18,21 +18,22 @@ EST_PRICE = (0.5, 2.0)  # $/1M tokens (in, out) — same estimate as root tf_cli
 # completion combined — 1M is rejected), so 128k leaves 128k for the prompt.
 # max_tokens is a cap, not a spend, so a huge value costs nothing extra.
 # reasoning=False disables thinking via vLLM's chat_template_kwargs — the only
-# knob Token Factory accepts (reasoning_effort is rejected, enable_thinking is
-# ignored; verified against the live API for Kimi-K2.6).
+# knob Token Factory accepts (reasoning_effort is silently ignored,
+# enable_thinking does nothing; verified against the live API for Kimi-K2.6).
 def chat(messages, model, max_tokens=131072, temperature=0.2, reasoning=True,
          **kw):
     key = os.environ.get("NEBIUS_API_KEY")
     if not key:
         raise RuntimeError("NEBIUS_API_KEY not set (put it in .env)")
-    kw["max_tokens"] = max_tokens
     if not reasoning:
         kw.setdefault("extra_body", {})["chat_template_kwargs"] = \
             {"thinking": False}
+    client = OpenAI(base_url=BASE_URL, api_key=key)
     # untruncated reasoning chains can run past 10 minutes — timeout to match
-    resp = litellm.completion(model=f"openai/{model}", api_base=BASE_URL,
-                              api_key=key, messages=messages,
-                              temperature=temperature, timeout=1800, **kw)
+    resp = client.chat.completions.create(model=model, messages=messages,
+                                          max_tokens=max_tokens,
+                                          temperature=temperature,
+                                          timeout=1800, **kw)
     u = resp.usage
     cost = (u.prompt_tokens * EST_PRICE[0]
             + u.completion_tokens * EST_PRICE[1]) / 1e6

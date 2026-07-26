@@ -7,18 +7,16 @@ NO retrieval, producing an answers file the eval harness can score.
     python baseline_runner.py --model deepseek-ai/DeepSeek-V4-Pro
     # then score baseline_answers.jsonl with YOUR evaluation harness (Stage 1)
 
-Calls go through litellm: a bare model name goes to OpenAI; set
-OPENAI_BASE_URL for any OpenAI-compatible endpoint (Token Factory, a local
-vLLM server, ...); provider-prefixed models ("anthropic/...", "gemini/...")
-work with the matching key env var. Try --system-prompt variants and watch
+Calls go through the openai SDK, which natively honors OPENAI_API_KEY and
+OPENAI_BASE_URL — set the latter for any OpenAI-compatible endpoint (Token
+Factory, a local vLLM server, ...). Try --system-prompt variants and watch
 how the failure profile (not just the score) changes.
 """
 import argparse
 import json
-import os
 import time
 
-import litellm
+from openai import OpenAI
 
 DEFAULT_SYSTEM = ("You are a customer-support assistant for Harel Insurance (Israel). "
                   "Answer the customer's question in the language it was asked. "
@@ -33,15 +31,7 @@ def main():
     ap.add_argument("--out", default="baseline_answers.jsonl")
     args = ap.parse_args()
 
-    # routing: OPENAI_BASE_URL forces the openai/ route to that endpoint,
-    # whatever the model id looks like (TF ids contain "/")
-    model, kwargs = args.model, {}
-    base = os.environ.get("OPENAI_BASE_URL")
-    if base:
-        kwargs["api_base"] = base
-        model = f"openai/{model.removeprefix('openai/')}"
-    elif "/" not in model:
-        model = f"openai/{model}"
+    client = OpenAI()  # reads OPENAI_API_KEY + OPENAI_BASE_URL from the env
 
     questions = json.load(open(args.questions, encoding="utf-8"))
     if isinstance(questions, dict):  # staff sets wrap the list in {"questions": [...]}
@@ -49,10 +39,10 @@ def main():
     with open(args.out, "w", encoding="utf-8") as out:
         for q in questions:
             t0 = time.time()
-            resp = litellm.completion(model=model, messages=[
+            resp = client.chat.completions.create(model=args.model, messages=[
                 {"role": "system", "content": args.system_prompt},
                 {"role": "user", "content": q["question"]}],
-                timeout=120, **kwargs)
+                timeout=120)
             rec = {"id": q["id"],
                    "answer": resp.choices[0].message.content,
                    "citations": [],  # the model has no documents -- that's the point
