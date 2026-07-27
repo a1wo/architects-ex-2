@@ -35,7 +35,7 @@ class TopKContextStuffing(Strategy):
         "k": {"default": 8, "min": 1, "max": 30, "label": "Top-K chunks"},
         "temperature": {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.1,
                         "label": "Temperature"},
-        "reasoning": {"default": "on", "type": "select",
+        "reasoning": {"default": "off", "type": "select",
                       "options": ["on", "off"], "label": "Reasoning"},
     }
 
