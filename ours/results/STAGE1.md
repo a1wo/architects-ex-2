@@ -2,13 +2,15 @@
 
 Stage-1 evaluation: the four spec metrics (relevance, hallucination, citations, latency). This page shows the stage-1 view of EVERY run: stage23-scored runs are included because stage23 embeds the full stage-1 evaluation (same pinned judge, same prompts) — see the `scored_by` column. No conversational quality, no composite score here.
 
-30 runs, ranked by correct. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
+32 runs, ranked by correct. Judge pinned in `ours/config.json`. Every run folder holds `answers.jsonl` `verdicts.jsonl` `metrics.json` `config.json` `cases.csv`.
 
 | run | model | prompt | correct | partial | incorrect | refusal | halluc | p50_s | scored_by | date | why |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | [`rag_topk16_moonshotai_Kimi-K2.6`](rag_topk16_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 73% | 4% | 6% | 17% | 6% | 23.2s | stage23 | 2026-07-26 | k sweep high point: topk-context-stuffing k=16. Retrieval sweep says coverage 52% (vs 46% at k=8) - does the extra context convert to correct answers or dilute? |
 | [`rag_topk8_moonshotai_Kimi-K2.6`](rag_topk8_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 62% | 8% | 8% | 21% | 8% | 9.4s | stage23 | 2026-07-26 | First RAG run: topk-context-stuffing k=8 on docling__bge-m3__para300-1400, reasoning on. Hypothesis: grounding in retrieved pages beats bigger bare models. |
 | [`rag_topk4_moonshotai_Kimi-K2.6`](rag_topk4_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 60% | 8% | 6% | 25% | 6% | 11.3s | stage23 | 2026-07-26 | k sweep low anchor: topk-context-stuffing k=4, same DB/model/prompt as k=8 run. Retrieval sweep predicts worse coverage -> more refusals. |
+| [`rag_topk2_moonshotai_Kimi-K2.6`](rag_topk2_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 52% | 10% | 10% | 27% | 10% | 22.5s | stage23 | 2026-07-26 | k sweep second floor anchor: k=2, page coverage 23%. |
+| [`rag_topk1_moonshotai_Kimi-K2.6`](rag_topk1_moonshotai_Kimi-K2.6/cases.csv) | ? | — | 50% | 8% | 15% | 27% | 15% | 19.8s | stage23 | 2026-07-26 | k sweep floor anchor: k=1, page-level GT coverage only 17%. Honesty test: does the system refuse when context is starved, or hallucinate? |
 | [`bare_openai_gpt-oss-120b`](bare_openai_gpt-oss-120b/cases.csv) | openai/gpt-oss-120b | default | 40% | 0% | 60% | 0% | 60% | 5.9s | stage23 | 2026-07-18 | OpenAI open-weights: different training data mix |
 | [`bare_moonshotai_Kimi-K2.6`](bare_moonshotai_Kimi-K2.6/cases.csv) | moonshotai/Kimi-K2.6 | default | 38% | 6% | 38% | 19% | 31% | 26.6s | stage23 | 2026-07-18 | Kimi flagship: strong agentic model, bare |
 | [`bare_zai-org_GLM-5.2`](bare_zai-org_GLM-5.2/cases.csv) | zai-org/GLM-5.2 | default | 33% | 2% | 48% | 17% | 44% | 61.6s | stage23 | 2026-07-18 | GLM flagship: already used for cited-runner probe |
